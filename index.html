@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080e1c">
+  <title>Lo查查 VIP 会员体系 · 无限画布</title>
+  <style>
+    :root { --bg:#080e1c; --panel:#101a2c; --line:#27364e; --text:#edf7ff; --muted:#9bb0c8; --cyan:#62e7df; --violet:#bba6ff; --amber:#ffc77d; }
+    * { box-sizing:border-box; }
+    html,body { width:100%; height:100%; margin:0; overflow:hidden; }
+    body { color:var(--text); background:var(--bg); font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button,input { font:inherit; }
+    button { color:inherit; }
+    button:focus-visible,input:focus-visible { outline:2px solid var(--cyan); outline-offset:3px; }
+    #viewport { position:fixed; inset:0; overflow:hidden; touch-action:none; background:radial-gradient(circle at 50% 46%,#122947 0,#0a162a 38%,#080e1c 78%); }
+    #viewport::before { content:""; position:absolute; inset:0; opacity:.42; background-image:linear-gradient(to right,#2b466244 1px,transparent 1px),linear-gradient(to bottom,#2b466244 1px,transparent 1px); background-size:var(--grid-size,32px) var(--grid-size,32px); background-position:var(--grid-x,0px) var(--grid-y,0px); pointer-events:none; }
+    #viewport::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 12% 80%,#1f85781b,transparent 28%),radial-gradient(circle at 88% 25%,#7559bb24,transparent 30%); pointer-events:none; }
+    #world { position:absolute; left:0; top:0; width:3880px; height:2910px; transform-origin:0 0; will-change:transform; }
+    #wires { position:absolute; inset:0; width:3880px; height:2910px; overflow:visible; pointer-events:none; }
+    .wire { fill:none; stroke-width:2; stroke-linecap:round; opacity:.72; }
+    .wire.front { stroke:#3acfc7; } .wire.admin { stroke:#9b7ef1; } .wire.rules { stroke:#e8ad66; }
+    .wire.spine { stroke-dasharray:4 9; opacity:.48; animation:signal-flow 16s linear infinite; }
+    .wire.admin-page,.wire.client-page { stroke-width:2.5; opacity:.9; }
+    @keyframes signal-flow { to { stroke-dashoffset:-104; } }
+    .wire-dot { fill:#0c1a2c; stroke-width:2.5; }
+    .wire-dot.front { stroke:#3acfc7; } .wire-dot.admin { stroke:#9b7ef1; } .wire-dot.rules { stroke:#e8ad66; }
+    .node { position:absolute; display:block; overflow:hidden; width:var(--w); height:var(--h); border:1px solid #34445d; border-radius:22px; padding:21px 23px; background:linear-gradient(155deg,#17253bdc,#111d30eb); box-shadow:0 18px 42px #0208138a,inset 0 1px #ffffff10; text-align:left; cursor:pointer; transition:border-color .18s,box-shadow .18s,transform .18s; }
+    .node:hover { transform:translateY(-4px); border-color:#62e7df; box-shadow:0 24px 55px #020813b0,0 0 28px #62e7df24; }
+    .node.active { border-color:#8cf3eb; box-shadow:0 0 0 2px #6ee7df33,0 20px 50px #020813a8,0 0 42px #5ce3db38; }
+    .node::before { content:""; position:absolute; top:0; left:0; width:100%; height:3px; background:var(--accent,#62e7df); box-shadow:0 0 18px var(--accent,#62e7df); }
+    .node::after { content:""; position:absolute; right:-30px; bottom:-76px; width:175px; height:175px; border-radius:50%; background:var(--glow,#2bccc62b); filter:blur(12px); pointer-events:none; }
+    .node.root { --accent:#7cf8ea; --glow:#38d7c840; padding:27px 30px; border-color:#60cfc7; border-radius:28px; background:linear-gradient(125deg,#183f53,#102c43 54%,#133b4b); box-shadow:0 30px 70px #020813ad,0 0 55px #23c6b83b; }
+    .node.root { animation:root-glow 7s ease-in-out infinite; }
+    @keyframes root-glow { 50% { box-shadow:0 30px 70px #020813ad,0 0 78px #23c6b859; } }
+    .node.hub.front,.node.leaf.front { --accent:#61dfd6; --glow:#37c6bd25; }
+    .node.hub.admin,.node.leaf.admin { --accent:#b29afa; --glow:#9870e72b; }
+    .node.hub.rules,.node.leaf.rules { --accent:#f0bf7f; --glow:#eaa65d28; }
+    .node.hub { border-width:1.5px; background:linear-gradient(125deg,#1b3045,#142239); }
+    .node .meta { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:13px; color:var(--accent); font:700 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.15em; text-transform:uppercase; }
+    .status { flex:none; border:1px solid currentColor; border-radius:999px; padding:4px 8px; color:#99e5d7; background:#15454164; font:700 10px/1 sans-serif; letter-spacing:0; white-space:nowrap; }
+    .status.proposed { color:#f6d59c; background:#744d1638; } .status.open { color:#f0adc6; background:#803b5d38; }
+    .node h2,.node h3 { position:relative; z-index:1; margin:0; color:#f5fbff; font-weight:760; letter-spacing:-.035em; line-height:1.28; }
+    .node.root h2 { font-size:31px; } .node.hub h3 { font-size:25px; } .node.leaf h3 { font-size:23px; }
+    .node p { position:relative; z-index:1; margin:11px 0 0; color:#b7cadd; font-size:14px; line-height:1.55; }
+    .node.root p { color:#d2f6f1; font-size:15px; }
+    .node .footer { position:absolute; z-index:1; left:23px; right:23px; bottom:18px; display:flex; justify-content:space-between; color:#82a3b8; font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.12em; }
+    .node .footer b { color:var(--accent); font-weight:700; }
+    .node.root .footer { left:30px; right:30px; }
+    .node.hub .footer { bottom:8px; }
+    .topbar { position:fixed; z-index:10; top:18px; left:18px; right:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:67px; border:1px solid #35506d99; border-radius:17px; padding:10px 14px 10px 18px; background:#0d1829e8; box-shadow:0 12px 40px #0208138c; backdrop-filter:blur(16px); }
+    .brand { display:flex; align-items:center; gap:11px; flex:none; }
+    .brand-icon { display:grid; place-items:center; width:39px; height:39px; border:1px solid #5be2d8; border-radius:12px; color:#9ffff3; background:#20524c; box-shadow:0 0 22px #50dfd23a; font:900 17px/1 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .brand small { display:block; color:#77b9bd; font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.22em; }
+    .brand strong { display:block; margin-top:2px; font-size:17px; line-height:1.2; letter-spacing:-.02em; }
+    .top-actions { display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:7px; }
+    .nav,.icon-button { border:1px solid #3b516d; border-radius:9px; padding:8px 10px; background:#17263c; color:#bcd1e7; font-size:12px; font-weight:720; cursor:pointer; white-space:nowrap; }
+    .nav:hover,.icon-button:hover { border-color:#61ddd4; color:#dffffb; background:#1c3b4b; }
+    .nav.selected { color:#092a30; background:#78e7dc; border-color:#78e7dc; }
+    .search { width:176px; height:34px; border:1px solid #3b516d; border-radius:9px; padding:0 10px; color:#f2f8ff; outline:none; background:#111f32; font-size:12px; }
+    .search::placeholder { color:#7890a7; }
+    .search:focus { border-color:var(--cyan); }
+    .version { color:#a6bbd0; font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.07em; }
+    .left-hud { position:fixed; z-index:6; bottom:20px; left:20px; display:flex; flex-direction:column; gap:9px; pointer-events:none; }
+    .hud-card { border:1px solid #344c69a8; border-radius:12px; padding:9px 12px; color:#a8bed3; background:#0d1a2bdc; box-shadow:0 9px 28px #02081374; backdrop-filter:blur(10px); font:650 11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.025em; }
+    .hud-card strong { color:#78eadf; }
+    .zoom { display:flex; gap:5px; pointer-events:auto; }
+    .zoom button { width:36px; height:35px; border:1px solid #3c5973; border-radius:9px; color:#dceefa; background:#152a3e; font-size:18px; cursor:pointer; }
+    .zoom button:hover { border-color:#66e5db; background:#214456; }
+    .zoom output { min-width:65px; display:grid; place-items:center; border:1px solid #3c5973; border-radius:9px; background:#152a3e; color:#8ee9df; font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .minimap { position:fixed; z-index:6; right:20px; bottom:20px; width:222px; border:1px solid #48627d; border-radius:14px; padding:11px; background:#0b1729ee; box-shadow:0 14px 38px #020813a2; backdrop-filter:blur(14px); }
+    .minimap-head { display:flex; justify-content:space-between; margin-bottom:7px; color:#83a7c1; font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.13em; }
+    .minimap svg { display:block; width:100%; height:auto; border:1px solid #294055; border-radius:7px; background:#0c182b; cursor:crosshair; }
+    .mini-node { fill:#4a7782; } .mini-node.admin { fill:#866fc0; } .mini-node.rules { fill:#b58958; } .mini-node.root { fill:#75e9db; }
+    #mini-view { fill:#66e7dd19; stroke:#8ff5e9; stroke-width:14; pointer-events:none; }
+    .inspector { position:fixed; z-index:9; top:99px; right:18px; bottom:178px; width:min(452px,calc(100vw - 36px)); display:flex; flex-direction:column; border:1px solid #52708d; border-radius:20px; overflow:hidden; background:#0e1b2eea; box-shadow:0 30px 70px #020813c7; backdrop-filter:blur(22px); transform:translateX(calc(100% + 40px)); opacity:0; pointer-events:none; transition:transform .25s,opacity .25s; }
+    .inspector.open { transform:translateX(0); opacity:1; pointer-events:auto; }
+    .inspector-head { flex:none; padding:20px 22px 16px; border-bottom:1px solid #324b64; background:linear-gradient(120deg,#173749,#16243c); }
+    .inspector-top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; color:#79d9d5; font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.15em; }
+    .close { display:grid; place-items:center; width:29px; height:29px; border:1px solid #54738a; border-radius:8px; background:#20394a; font-size:17px; cursor:pointer; }
+    .close:hover { background:#2f5560; }
+    .inspector h2 { margin:0; font-size:25px; line-height:1.25; }
+    .inspector-intro { margin:7px 0 0; color:#b4cbd9; font-size:13px; }
+    .inspector-body { overflow:auto; padding:18px 22px 22px; }
+    .detail-block + .detail-block { margin-top:19px; }
+    .detail-block h3 { display:flex; align-items:center; gap:8px; margin:0 0 9px; color:#a6eae5; font-size:13px; letter-spacing:.02em; }
+    .detail-block h3::before { content:""; width:7px; height:7px; border-radius:50%; background:#69e5dc; box-shadow:0 0 10px #69e5dc; }
+    .detail-block ul { margin:0; padding-left:18px; color:#c1d0df; font-size:13px; }
+    .detail-block li + li { margin-top:7px; }
+    .detail-block a { color:#8ceee6; overflow-wrap:anywhere; text-decoration-color:#58bdb6; }
+    .prices { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin:0 0 18px; }
+    .price { border:1px solid #2f6d6b; border-radius:10px; padding:10px 4px; background:#113539; text-align:center; }
+    .price b { display:block; color:#8df7eb; font-size:16px; } .price span { display:block; color:#bbdbdf; font-size:11px; } .price small { display:block; color:#79a9af; font-size:10px; }
+    .inspector-note { margin-top:18px; border-left:2px solid #deb475; border-radius:0 7px 7px 0; padding:9px 11px; background:#704b242b; color:#f2d2a4; font-size:12px; }
+    .related { display:flex; flex-wrap:wrap; gap:7px; margin-top:19px; }
+    .related button { border:1px solid #5d5793; border-radius:8px; padding:7px 9px; color:#dfd5ff; background:#332c56; font-size:12px; cursor:pointer; }
+    .related button:hover { border-color:#bba6ff; background:#4a3a75; }
+    .print-sheet { display:none; }
+    @media (max-width:1050px) { .version { display:none; } .topbar { align-items:flex-start; } .search { width:140px; } .inspector { bottom:170px; } }
+    @media (max-width:730px) { .topbar { top:9px; left:9px; right:9px; display:block; padding:10px; } .brand { margin-bottom:8px; } .brand strong { font-size:14px; } .brand-icon { width:31px; height:31px; font-size:14px; } .top-actions { justify-content:flex-start; } .nav,.icon-button { padding:6px 7px; font-size:10px; } .search { width:120px; height:29px; } .inspector { top:auto; left:8px; right:8px; bottom:9px; width:auto; height:min(72vh,620px); transform:translateY(calc(100% + 20px)); } .inspector.open { transform:translateY(0); } .minimap { right:9px; bottom:9px; width:150px; padding:7px; } .minimap-head { font-size:8px; } .left-hud { left:9px; bottom:9px; } .hud-card { max-width:185px; font-size:9px; padding:6px 8px; } .zoom button { width:28px; height:28px; font-size:14px; } .zoom output { min-width:48px; font-size:9px; } }
+    @media (prefers-reduced-motion:reduce) { .node,.inspector,.wire.spine { transition:none; animation:none; } }
+    @media print { html,body { height:auto; overflow:visible; color:#1c2b38; background:#fff; } #viewport,.topbar,.left-hud,.minimap,.inspector { display:none!important; } .print-sheet { display:block; padding:18mm; } .print-sheet h1 { font-size:25px; } .print-sheet h2 { margin-top:22px; border-bottom:1px solid #cbd6dc; padding-bottom:5px; font-size:17px; } .print-sheet h3 { font-size:13px; } .print-sheet p,.print-sheet li,.print-sheet .detail-block ul { color:#344656; font-size:11px; } .print-sheet .detail-block h3 { color:#146b67; } .print-sheet section { break-inside:avoid; } .print-sheet .prices { max-width:480px; } .print-sheet .price { background:#f1f7f7; } .print-sheet .price b { color:#146b67; } .print-sheet .price span,.print-sheet .price small { color:#536c73; } }
+  </style>
+</head>
+<body>
+  <div id="viewport" aria-label="可拖动和缩放的 VIP 会员体系思维导图">
+    <div id="world"><svg id="wires" viewBox="0 0 3880 2910" aria-hidden="true"></svg><div id="nodes"></div></div>
+  </div>
+  <header class="topbar">
+    <div class="brand"><div class="brand-icon" aria-hidden="true">L/</div><div><small>LOCHACHA / PRODUCT SYSTEM</small><strong>VIP 会员体系</strong></div></div>
+    <div class="top-actions">
+      <span class="version">INTERACTIVE MAP · 2026.09.25</span>
+      <input class="search" id="search" type="search" aria-label="搜索导图节点" placeholder="搜索节点 ↵">
+      <button class="nav selected" data-focus="root">全局</button><button class="nav" data-focus="front">用户端</button><button class="nav" data-focus="admin">管理端</button><button class="nav" data-focus="rules">统一规则</button>
+      <button class="icon-button" id="fit" title="适应全部内容">全图</button><button class="icon-button" id="print" title="打印完整规则">打印</button>
+    </div>
+  </header>
+  <aside class="left-hud" aria-label="画布操作">
+    <div class="hud-card"><strong>DRAG</strong> 拖动画布　<strong>SCROLL / PINCH</strong> 缩放<br>每格是独立页面 · 青/紫箭头表示页面跳转 · Esc 关闭</div>
+    <div class="zoom"><button id="zoom-out" aria-label="缩小">−</button><output id="zoom-value">100%</output><button id="zoom-in" aria-label="放大">+</button></div>
+  </aside>
+  <aside class="minimap" aria-label="导图小地图"><div class="minimap-head"><span>MINIMAP / 导航</span><span id="node-count">48 NODES</span></div><svg id="mini-svg" viewBox="0 0 3880 2910" role="img" aria-label="点击小地图移动画布"><rect id="mini-view" x="0" y="0" width="100" height="100"></rect></svg></aside>
+  <aside class="inspector" id="inspector" aria-label="节点详情" aria-hidden="true"><div class="inspector-head"><div class="inspector-top"><span id="detail-meta">NODE DETAILS</span><button class="close" id="close" aria-label="关闭详情">×</button></div><h2 id="detail-title"></h2><p class="inspector-intro" id="detail-intro"></p></div><div class="inspector-body" id="detail-body"></div></aside>
+  <main class="print-sheet" id="print-sheet"></main>
+  <script>
+    const WORLD = { width:3880, height:2910 };
+    const prices = [['1 个月','¥9.8','¥9.8 / 月'],['3 个月','¥26.8','约 ¥8.93 / 月'],['6 个月','¥49.8','¥8.3 / 月'],['12 个月','¥88.8','¥7.4 / 月']];
+    const nodes = [
+      {id:'root',kind:'root',branch:'root',x:1670,y:100,w:520,h:210,code:'00 / CORE',title:'VIP 会员体系',summary:'四端同价；凭证主动领取、邀请券自动发放；跨端共享 VIP。',status:'已明确方向',blocks:[['产品方向',['1、3、6、12 个月固定期限单次购买，不自动续费；最长售卖档位是 1 年，不代表累计有效期只能有 1 年。','两条获得路径：购买会员；邀请好友自动获体验券并主动使用。','四项权益：每日穿搭、付费会员月凭证领取、头像挂件、VIP 专属客服。','已定稿：同一用户账号在 App 和小程序共享 VIP；同一档位四端同价，具体金额仍待定。']],['文档性质',['这是供产品和开发评审的讨论图。建议价、平台支付准入与部分细则尚未最终确认；不表示功能已开发或价格已生效。']]]},
+      {id:'front',kind:'leaf',branch:'front',x:410,y:410,w:340,h:190,code:'CLIENT / 00',title:'VIP 会员首页',summary:'会员状态、到期时间和各页面入口。',status:'规划页面',blocks:[['首页信息',['展示未开通、有效、即将到期或已到期状态；服务端返回总有效期、付费期、来源与本期凭证可领状态。','可进入权益介绍、档位选择、购买记录、每日穿搭、交易凭证与领取页、头像挂件、专属客服、邀请好友和券包。']],['跨端规则 · 已定稿',['同一用户账号在 App 与小程序读取同一份 VIP 身份、有效期和权益状态；购买、用券或退款后重新查询即得到相同结果。','到期仍可查看历史穿搭、凭证与订单；未开通时不隐藏普通客服或当天穿搭入口。']]]},
+      {id:'admin',kind:'leaf',branch:'admin',x:2770,y:410,w:340,h:190,code:'ADMIN / 00',title:'会员管理首页',summary:'待办、状态与常用页面入口。',status:'规划页面',blocks:[['页面内容',['展示待核实支付、待处理退款、对账差异、即将到期会员、邀请异常和 VIP 专属客服待接待数量。','每个数字可进入对应列表并保留筛选条件；展示最近处理记录和渠道准入状态提醒。']],['使用边界',['这是管理端真实首页的规划，不是把业务规则塞进一个总览页；具体操作都在独立页面完成。','运营、客服、财务看到各自权限内的入口和待办。']]]},
+      {id:'rules',kind:'hub',branch:'rules',x:1720,y:2370,w:420,h:145,code:'03 / SHARED LOGIC',title:'统一规则 · 已定与待定',summary:'跨端同账号共享 VIP 已定；有效期算法等仍待拍板。',status:'部分定稿',blocks:[['统一规则',['已定稿：同一用户账号在 App 与小程序共享 VIP 身份、有效期和权益状态；两端都以服务端会员账本为准。','购买、用券、退款、人工调整与月度凭证额度要分别记来源；具体有效期算法与账号合并口径仍待拍板。']]]},
+
+      {id:'f-benefits',kind:'leaf',branch:'front',x:50,y:700,w:320,h:190,code:'CLIENT / 01',title:'VIP 权益介绍',summary:'四项权益、免费边界与到期说明。',status:'规划页面',blocks:[['页面内容',['展示每日穿搭任意日期编辑、付费期每会员月可主动领取 1 张交易凭证额度、内置头像挂件、VIP 专属客服。','普通用户仍可设置当天穿搭、使用原有 3 次免费凭证额度，并联系普通客服；体验券期不产生月度凭证领取资格。']],['页面跳转',['从会员首页或受限功能进入；点击开通进入会员档位选择。','说明挂件只代表会员身份、凭证不代表平台担保。']]]},
+      {id:'f-plans',kind:'leaf',branch:'front',x:430,y:700,w:320,h:190,code:'CLIENT / 02',title:'会员档位选择',summary:'四档期限和四端一致的实际售价。',status:'建议价',price:true,blocks:[['档位展示',['1 个月 ¥9.8、3 个月 ¥26.8、6 个月 ¥49.8、12 个月 ¥88.8 为讨论建议价；正式同档位售价四端一致。','展示单次购买、不自动续费、档位期限和续购叠加待确认的规则。']],['页面跳转',['选择可售档位进入订单确认与支付；只有各端实际价格已配置为一致且渠道获准，才显示该端可购按钮。','已是 VIP 可再次购买；累计有效期上限和月末计算方式待拍板。']]]},
+      {id:'f-checkout',kind:'leaf',branch:'front',x:810,y:700,w:320,h:190,code:'CLIENT / 03',title:'订单确认与支付',summary:'核对档位、价格、协议并拉起本端支付。',status:'规划页面',blocks:[['确认信息',['展示所选期限、实付金额、支付渠道、预计权益与协议；服务端创建订单并保存价格快照。','iOS App 的数字 VIP 走 Apple IAP；国内 Android App 在获准后可选微信或支付宝；小程序只显示微信虚拟支付入口。']],['支付分支',['用户取消/失败不发权益；返回页面进入支付结果与查单。','小程序统一调用 wx.requestVirtualPayment；Android/鸿蒙微信内实际走微信支付，iPhone/iPad 微信内按平台规则走 Apple 支付。']]]},
+      {id:'f-payment',kind:'leaf',branch:'front',x:50,y:960,w:320,h:190,code:'CLIENT / 04',title:'支付结果与查单',summary:'确认中、已开通、失败与迟到成功。',status:'规划页面',blocks:[['状态展示',['客户端返回仅显示“确认中”；服务端核实成功并发放权益后才展示开通成功、实际到期日和返回会员首页。','取消/明确失败显示未开通；未知结果提供原订单查询，避免让用户重复付款。']],['异常路径',['通知延迟、发放失败或超时后迟到成功继续查原单，可进入订单详情查看进度和联系售后。','同一笔付款不会重复增加会员时长。']]]},
+      {id:'f-orders',kind:'leaf',branch:'front',x:430,y:960,w:320,h:190,code:'CLIENT / 05',title:'会员购买记录',summary:'按时间查看跨端订单和当前状态。',status:'规划页面',blocks:[['列表内容',['展示档位、金额、原支付渠道、下单时间、付款/发放/退款状态；同账号跨端可查看。','结果未知、待发放、已完成和退款中分别清楚标识。']],['页面跳转',['从会员首页或支付结果进入，点击单笔打开订单详情与售后。','列表不把前端支付提示当成订单已完成。']]]},
+      {id:'f-order-detail',kind:'leaf',branch:'front',x:810,y:960,w:320,h:190,code:'CLIENT / 06',title:'订单详情与售后',summary:'看原单、权益到账和退款进度。',status:'规划页面',blocks:[['详情信息',['展示订单号、档位、实付、支付渠道、付款/权益发放时间、当前状态和售后说明。','退款处理中保持原渠道进度；渠道确认后同步剩余权益和会员状态。']],['用户动作',['可查询未知支付、联系售后；退款按原渠道及其规则办理，跨端查看不等于跨端退款。','历史已生成交易凭证和穿搭仍可查看；部分退款等细则待确认。']]]},
+      {id:'f-ootd-calendar',kind:'leaf',branch:'front',x:50,y:1220,w:320,h:190,code:'CLIENT / 07',title:'每日穿搭日历',summary:'选择日期并查看已有穿搭。',status:'规划页面',blocks:[['页面内容',['所有用户可查看自己的日历和历史穿搭；同一用户同一天只保留一条记录。','普通用户可选择北京时间当天编辑；有效 VIP 可选择任意合法过去或未来日期。']],['页面跳转',['点击可编辑日期进入穿搭编辑；非 VIP 点其他日期显示权益说明和开通入口。','会员到期后历史内容保留，非当天不再可改。']]]},
+      {id:'f-ootd-edit',kind:'leaf',branch:'front',x:430,y:1220,w:320,h:190,code:'CLIENT / 08',title:'每日穿搭编辑',summary:'按服务端日期权限创建或修改。',status:'规划页面',blocks:[['保存规则',['普通用户仅创建/修改北京时间当天；VIP 可编辑任意合法日期，不设日期范围上限。','前端日期选择和服务端保存校验一致；跨零点、会员刚到期时以服务端状态与时间判定。']],['页面结果',['保存成功回到日历；历史穿搭继续可查看。','删除自己已有穿搭是否不受日期限制为建议细则。']]]},
+      {id:'f-cert-create',kind:'leaf',branch:'front',x:810,y:1220,w:320,h:190,code:'CLIENT / 09',title:'交易凭证发起',summary:'显示已领取额度，双签完成时扣额。',status:'规划页面',blocks:[['发起规则',['发起前显示原有免费总额度及付费 VIP 本会员月已领取的可用额度；未领取时提示进入 VIP 凭证领取页。','双方完成签署时扣发起方 1 次；受邀方核对和签署不因自己额度为零受阻。扣减顺序仍待确认。']],['页面跳转',['可进入凭证额度详情或 VIP 凭证领取；额度不足可查看会员权益。','已生成凭证双方仍可免费查看核验；凭证只记录双方确认，不代表平台担保。']]]},
+      {id:'f-quota',kind:'leaf',branch:'front',x:50,y:1480,w:320,h:190,code:'CLIENT / 10',title:'凭证额度详情',summary:'免费 3 次与付费 VIP 月度领取分开看。',status:'规划页面',blocks:[['额度明细',['展示原有免费总额度 3 次的剩余数、付费会员月可领/已领/已用/失效状态、领取时刻、本期截止及关联凭证。','仅付费 VIP 本会员月可主动领 1 次；体验券 VIP 不产生领取资格。']],['页面跳转与待定',['可进入独立 VIP 凭证领取页，领取后返回本页再发起交易凭证。','未领或已领未用额度期末暂按不结转规划；退款、作废和异常补发是否返还待拍板。']]]},
+      {id:'f-avatar',kind:'leaf',branch:'front',x:430,y:1480,w:320,h:190,code:'CLIENT / 11',title:'头像挂件选择',summary:'VIP 从平台内置款中选择并预览。',status:'规划页面',blocks:[['设置与预览',['开通后默认佩戴平台内置基础款；可选择、切换其他已上架内置挂件，不开放自行上传。','小头像预览不能遮挡主体。']],['全端展示',['App、小程序所有用户端头像位都显示头像所属 VIP 用户当前挂件，非 VIP 浏览者也能看到。','会员到期停止展示，保留所选款式供再次开通恢复；挂件不代表实名或信用。']]]},
+      {id:'f-support',kind:'leaf',branch:'front',x:810,y:1480,w:320,h:190,code:'CLIENT / 12',title:'VIP 专属客服会话',summary:'专属入口进入专门客服接待。',status:'规划页面',blocks:[['会话入口',['有效 VIP 从会员首页进入专属客服，在公布的服务时段由专门客服人员接待。','体验券 VIP 是否同享当前建议同享，最终以产品确认和运营排班为准。']],['异常与边界',['非工作时段、无人接待或会员到期时清楚提示，仍可转普通客服。','退款、投诉、举报和账号安全等基础服务对所有用户开放。']]]},
+      {id:'f-invite',kind:'leaf',branch:'front',x:50,y:1740,w:320,h:190,code:'CLIENT / 13',title:'邀请好友',summary:'分享邀请码、查看奖励和可填写期限。',status:'规划页面',blocks:[['规则展示',['邀请人累计成功邀请 2 人首次获 7 天券；第 3 人起，每多邀请 1 人，双方各获 1 天券。奖励券自动发到券包，使用需主动确认。','注册后 1 个月内可填写他人邀请码；超期只能邀请别人。前两位被邀请人的奖励和更细反作弊门槛待确认。']],['页面跳转',['从会员首页分享给好友；未绑定且未超期可进入填写邀请码页，也可进入邀请进度与记录。','小程序分享同时覆盖微信好友和朋友圈；App 按自身分享能力接入。']]]},
+      {id:'f-invite-progress',kind:'leaf',branch:'front',x:430,y:1740,w:320,h:190,code:'CLIENT / 14',title:'邀请进度与记录',summary:'查看成功绑定人数、里程碑和发券流水。',status:'规划页面',blocks:[['页面内容',['展示已成功绑定的人数、距下一奖励的人数、被邀请人首次绑定时间和自动发券状态。','同一被邀请账号仅能绑定一位邀请人；自邀或重复绑定不计数，异常关系进入审核。']],['页面跳转',['点击已发券进入我的 VIP 体验券；可回邀请好友继续分享。']]]},
+      {id:'f-coupons',kind:'leaf',branch:'front',x:810,y:1740,w:320,h:190,code:'CLIENT / 15',title:'我的 VIP 体验券',summary:'自动到账的 1/7 天券，默认 30 天内使用。',status:'规划页面',blocks:[['券包内容',['成功邀请触发的奖励自动发入券包，无手动领券步骤；显示券面额、邀请来源、发放时刻和 30×24 小时使用截止。','显示未用/已用/过期/撤销；到账不自动核销，到期未用自动失效。']],['页面跳转',['点可用券进入用券确认与结果；过期或撤销券不可再用。','已有 VIP 也可使用券顺延总有效期。']]]},
+      {id:'f-coupon-use',kind:'leaf',branch:'front',x:810,y:2000,w:320,h:190,code:'CLIENT / 16',title:'用券确认与结果',summary:'主动核销，确认顺延后的到期时间。',status:'规划页面',blocks:[['确认信息',['使用前展示券面 1/7 天、当前会员到期时间与预计新到期时间。','默认计算建议为 max(当前时间,现有到期时间)+券天数；实际顺延算法仍待拍板。']],['结果与异常',['主服务对同一张券只核销一次；成功后刷新当前端，iOS、Android 和小程序查询同一券与 VIP 状态。','过期、撤销或已用券明确提示原因；券在自动发放后 30 天内使用，核销后的会员时长不受原券剩余有效期影响。']]]},
+      {id:'f-invite-code',kind:'leaf',branch:'front',x:50,y:2000,w:320,h:190,code:'CLIENT / 18',title:'填写邀请码',summary:'注册 1 个月内首次绑定邀请人。',status:'规划页面',blocks:[['可填写资格',['主服务以注册时刻判断 1 个月窗口；已注册但仍在窗口内的老用户也可补填。页面展示截止时刻。','超过 1 个月不允许填写，但仍可分享自己的邀请码邀请别人；月末计算口径待确认。']],['提交与结果',['只能首次绑定一位邀请人，不可自邀、重复绑定或改绑；服务端校验后写入唯一邀请关系，计一次成功邀请。','按当前里程碑自动发券到对应用户券包；页面展示绑定结果，并可去邀请进度或券包。']]]},
+      {id:'f-cert-claim',kind:'leaf',branch:'front',x:430,y:2000,w:320,h:190,code:'CLIENT / 17',title:'VIP 凭证领取',summary:'付费会员每会员月主动领 1 次。',status:'规划页面',blocks:[['领取资格',['仅付费 VIP 当前会员月显示 1 次免费交易凭证额度资格、本期截止时间和已领状态；体验券 VIP 不产生资格。','普通用户原有 3 次免费额度照旧，无需在本页领取。']],['领取结果',['用户点击领取后，主服务以账号和会员月唯一约束防双端重复领取；成功显示领取时刻和本期有效期。','已领、已用或过期状态明确展示；领取后返回凭证额度详情，再进入交易凭证发起。']]]},
+
+      {id:'a-tier',kind:'leaf',branch:'admin',x:2250,y:700,w:340,h:190,code:'ADMIN / 01',title:'会员档位设置',summary:'配置 1、3、6、12 个月期限和权益。',status:'规划页面',blocks:[['页面字段',['档位名称、期限、权益说明、启停状态与生效时间；保留版本记录。','最长售卖档位为 12 个月，不代表累计有效期封顶 12 个月。']],['页面动作',['新增或调整档位后进入 VIP 价格设置；已创建订单沿用原档位快照。','停用仅阻止新订单，不改已支付会员期限；变更写入操作审计。']]]},
+      {id:'a-price',kind:'leaf',branch:'admin',x:2650,y:700,w:340,h:190,code:'ADMIN / 02',title:'VIP 价格设置',summary:'每档统一实付价及四端支付映射。',status:'规划页面',blocks:[['页面字段',['每档只维护一个统一人民币实付价；核对 iOS IAP、国内 Android 微信/支付宝、小程序虚拟支付与可能的 Play Billing 映射价格。','显示各平台审核、商户准入和购买入口状态；若一端无法配置同价，调整档位价或暂缓该端开售。']],['页面动作',['发布新价格仅影响新订单；订单详情保留当时价格与配置版本。','价格、渠道与审核状态变更需复核并进入操作审计。']]]},
+      {id:'a-orders',kind:'leaf',branch:'admin',x:3050,y:700,w:340,h:190,code:'ADMIN / 03',title:'订单列表',summary:'检索订单并进入对应处理页面。',status:'规划页面',blocks:[['列表字段',['用户、内部订单号、渠道交易号、档位、入口端、渠道、金额、创建时间、支付/发放/退款状态。','筛选待支付、确认中、已支付待发放、已完成、已关闭、退款中及异常。']],['页面入口',['点击订单进入订单详情；结果未知转支付异常列表，退款单转退款列表，对账差异保留来源标记。','列表不可直接改成“已支付”或“已发放”。']]]},
+      {id:'a-detail',kind:'leaf',branch:'admin',x:3450,y:700,w:340,h:190,code:'ADMIN / 04',title:'订单详情',summary:'原单价格、支付证据与权益时间线。',status:'规划页面',blocks:[['详情内容',['展示订单快照、渠道交易校验、创建/支付/发放/退款/冲正时间线和失败原因。','服务端核实付款才发权益；前端支付成功提示不构成开通证据。']],['页面跳转',['结果未知进入补单处理；售后进入退款处理；查看对应会员权益来源和渠道对账差异。','敏感支付凭证仅按最小权限展示。']]]},
+
+      {id:'a-payment',kind:'leaf',branch:'admin',x:2250,y:970,w:340,h:190,code:'ADMIN / 05',title:'支付异常列表',summary:'待查单、迟到成功和发放失败待办。',status:'规划页面',blocks:[['筛选与预警',['按渠道、异常类型、订单状态和待处理时长筛选；标明通知丢失、结果未知、金额不符、重复交易和发放失败。','自动查单与重试后仍未闭环的记录进入人工待办。']],['进入处理',['点击异常进入补单处理页；不能在列表中跳过证据直接开通会员。']]]},
+      {id:'a-payment-case',kind:'leaf',branch:'admin',x:2650,y:970,w:340,h:190,code:'ADMIN / 06',title:'补单处理页',summary:'核平台交易并安全重放权益发放。',status:'规划页面',blocks:[['处理步骤',['查看原订单、渠道通知和查单结果；核验签名、交易号归属、金额、币种及支付状态。','仅确认成功后重放发放；同一渠道交易和订单只发放一次。小程序处理发货推送与 query_order 补偿。']],['人工边界',['操作员填写原因、保留证据与结果；异常未核实时保持待办，禁止手工改“已支付”。','超时关闭后迟到成功也从原单核实补发或转售后。']]]},
+      {id:'a-refunds',kind:'leaf',branch:'admin',x:3050,y:970,w:340,h:190,code:'ADMIN / 07',title:'退款列表',summary:'查看申请、渠道处理中与已退款订单。',status:'规划页面',blocks:[['列表字段',['原订单、用户、支付渠道、退款原因、申请与渠道回执时间、退款金额和状态。','按待审核、处理中、成功、失败和拒付等情况筛选。']],['页面入口',['点击进入退款处理页；退款必须沿原支付渠道，不因跨端使用而改走另一渠道。']]]},
+      {id:'a-refund-detail',kind:'leaf',branch:'admin',x:3450,y:970,w:340,h:190,code:'ADMIN / 08',title:'退款处理页',summary:'渠道回执、权益冲正与售后结论。',status:'规划页面',blocks:[['处理步骤',['核原单和渠道可退状态，按渠道发起或接收退款；等待渠道最终结果并通知用户。','渠道确认成功后按该订单来源冲正、重算剩余购买和体验券权益；重复回执只冲正一次。']],['待确认场景',['已用月度凭证额度、部分退款、拒付及历史内容保留的售后规则待拍板，进入人工复核。','iOS App 和小程序 iOS Apple 支付依各自 Apple 售后流程。']]]},
+
+      {id:'a-recon',kind:'leaf',branch:'admin',x:2250,y:1240,w:340,h:190,code:'ADMIN / 09',title:'对账批次',summary:'导入或拉取渠道账单，查看核对结果。',status:'规划页面',blocks:[['页面内容',['按渠道、日期、币种管理支付和退款账单批次，展示订单/权益匹配数、差异数和处理进度。','小程序按实际微信或 Apple 支付路由分开核对。']],['页面入口',['点击批次查看对账差异；保留账单来源、导入时间与复核记录。']]]},
+      {id:'a-recon-diff',kind:'leaf',branch:'admin',x:2650,y:1240,w:340,h:190,code:'ADMIN / 10',title:'对账差异处理',summary:'逐笔闭环扣款、发放与退款差异。',status:'规划页面',blocks:[['差异类型',['已扣款未发放、已发放但渠道未成功、重复发放、渠道已退未冲正、金额或交易号不符。','每条差异关联原订单、平台交易和权益流水。']],['处理去向',['核实后转补单处理、退款处理或会员权益修复；记录处理人、结论和复核人。','不以修改看板数据代替账务闭环。']]]},
+      {id:'a-members',kind:'leaf',branch:'admin',x:3050,y:1240,w:340,h:190,code:'ADMIN / 11',title:'会员列表',summary:'按账号查询状态、期限与获得来源。',status:'规划页面',blocks:[['列表字段',['账号、VIP 状态、总到期时间、付费会员期、体验券期、最近购买与月度额度。','支持按有效、到期、来源、异常状态筛选。']],['页面入口',['点击会员进入会员详情；跨 App、小程序读取同一服务端会员身份。']]]},
+      {id:'a-member',kind:'leaf',branch:'admin',x:3450,y:1240,w:340,h:190,code:'ADMIN / 12',title:'会员详情与权益流水',summary:'逐来源追踪购买、用券和人工调整。',status:'规划页面',blocks:[['详情内容',['展示总有效期、付费期、券期、订单/券来源、变更前后值及跨端生效状态。','退款只冲正原订单来源；不能直接覆盖到期字段并误扣其他购买或券。']],['页面动作',['可跳订单详情、体验券、凭证额度；人工修复需原因、关联单号、权限与复核。','每日穿搭权限依据服务端 VIP 状态：普通用户仅当天，VIP 任意合法日期。']]]},
+
+      {id:'a-quota',kind:'leaf',branch:'admin',x:2250,y:1510,w:340,h:190,code:'ADMIN / 13',title:'交易凭证额度流水',summary:'免费 3 次与付费会员月主动领取分账。',status:'规划页面',blocks:[['流水字段',['原免费总额度与付费 VIP 每会员月 1 次的可领、领取、使用、失效、补发、冲正及关联凭证。','记录领取人、领取时刻、会员月周期和唯一领取标识；双方签署完成时才扣发起方额度。']],['异常入口',['双端重复领取、第二签失败、退款与作废异常可关联会员详情、订单及操作审计。','体验券期不产生领取资格；退款或作废是否返还仍待拍板。']]]},
+      {id:'a-invite',kind:'leaf',branch:'admin',x:2650,y:1510,w:340,h:190,code:'ADMIN / 14',title:'邀请记录',summary:'注册窗口、绑定关系与自动发券流水。',status:'规划页面',blocks:[['列表字段',['邀请人、被邀请人、注册时刻、填写截止、首次绑定时刻、累计有效人数、自动奖励券和状态。','首次有效绑定计一次成功邀请；2 人里程碑给邀请人 7 天券，第 3 人起双方各得 1 天券。']],['页面入口',['疑似自邀、重复注册或撤销关系进入邀请异常审核；已发奖励可跳体验券列表。','超过注册 1 个月或已绑定者不可再填邀请码，但仍可邀请别人。']]]},
+      {id:'a-invite-review',kind:'leaf',branch:'admin',x:3050,y:1510,w:340,h:190,code:'ADMIN / 15',title:'邀请异常审核',summary:'核自邀、重复邀请与撤销奖励。',status:'规划页面',blocks:[['审核证据',['关联邀请记录，核验注册时间、一个月填写窗口、重复绑定、同设备/手机号、账号合并及注销重注册线索。','敏感设备与联系方式只给授权人员看；前两位被邀请人的奖励尚未承诺。']],['审核动作',['确认有效、驳回或撤销，记录原因与复核；补券/撤券联动体验券和会员流水。']]]},
+      {id:'a-coupon',kind:'leaf',branch:'admin',x:3450,y:1510,w:340,h:190,code:'ADMIN / 16',title:'VIP 体验券列表',summary:'自动发券、30 天期限、主动核销。',status:'规划页面',blocks:[['列表字段',['用户、1/7 天券、邀请来源、自动发放时间、30×24 小时使用截止、主动核销时间和状态。','区分已发未用、已用、过期、撤销；发券不等于用券。']],['页面动作',['人工补券、撤券、恢复仅作异常处理，须原因和审计；同一券跨端并发核销仅一次成功。','核销后跳会员详情查看唯一权益来源与跨端最新状态，已使用券撤销规则待定。']]]},
+
+      {id:'a-coupon-rules',kind:'leaf',branch:'admin',x:2250,y:1780,w:340,h:190,code:'ADMIN / 17',title:'体验券规则设置',summary:'自动奖励面额与默认 30 天有效期。',status:'规划页面',blocks:[['规则字段',['首次有效绑定计成功邀请；2 人里程碑自动给邀请人 7 天券，第 3 人起双方自动各得 1 天券。','券发放后默认 30 天可用；活动启停、未来券有效期调整和更细反作弊门槛待确认。']],['变更边界',['新规则只影响之后发放的券；已发券保留原面额和截止时间。','规则发布与回滚均留审计；发券与用户主动核销分开记录。']]]},
+      {id:'a-avatar',kind:'leaf',branch:'admin',x:2650,y:1780,w:340,h:190,code:'ADMIN / 18',title:'头像挂件设置',summary:'内置款、默认款、排序与上下架。',status:'规划页面',blocks:[['页面字段',['平台内置挂件目录、默认基础款、预览图、排序和状态；用户不能上传自制挂件。','预览 App 与小程序小尺寸头像，避免遮挡头像主体。']],['展示规则',['展示由头像所属用户的 VIP 状态和所选款式决定；到期全端停止展示并保留选择。','下架已选款式需回退默认款；挂件不代表实名或信用。']]]},
+      {id:'a-support',kind:'leaf',branch:'admin',x:3050,y:1780,w:340,h:190,code:'ADMIN / 19',title:'VIP 专属客服会话列表',summary:'专属队列、待接待与会话处理。',status:'规划页面',blocks:[['列表与接待',['仅有效 VIP 进入专属入口；客服查看队列、等待时长、会员状态与会话分配。','可从会话跳订单详情和会员详情协助售后。']],['异常场景',['无可用人员、超时或会员到期时清楚提示并可转普通客服；投诉和账号安全等基础服务仍对所有人开放。']]]},
+      {id:'a-support-settings',kind:'leaf',branch:'admin',x:3450,y:1780,w:340,h:190,code:'ADMIN / 20',title:'VIP 专属客服配置',summary:'专门人员、服务时段与分配规则。',status:'规划页面',blocks:[['配置字段',['专属客服人员、工作时段、队列分配、入口启停及非工作时段提示。','展示与实际排班一致，不承诺未经运营验证的固定响应时限。']],['变更边界',['配置变更进入操作审计；普通客服通道保持可用。']]]},
+
+      {id:'a-metrics',kind:'leaf',branch:'admin',x:2250,y:2050,w:340,h:190,code:'ADMIN / 21',title:'会员经营报表',summary:'购买、退款、用券、凭证及客服数据。',status:'规划页面',blocks:[['指标与筛选',['按端、渠道、档位和时间看支付成功、退款、付费/体验券 VIP、复购、券核销、凭证额度使用与客服时效。','明确订单创建、付款、权益发放和退款各自统计时间口径。']],['钻取',['指标可进入订单、邀请、券或客服列表；经营报表不替代逐笔渠道对账。']]]},
+      {id:'a-audit',kind:'leaf',branch:'admin',x:2650,y:2050,w:340,h:190,code:'ADMIN / 22',title:'操作审计',summary:'关键配置和人工处理可追责。',status:'规划页面',blocks:[['审计字段',['操作者、角色、时间、关联订单/会员/券、操作前后值、原因、证据与复核结果。','覆盖价格、补单、退款、权益修复、邀请审核、补券撤券、挂件及客服配置。']],['查看权限',['敏感信息按角色脱敏；失败操作也留痕，审计记录不可由业务操作员自行删除。']]]},
+
+      {id:'r-account',kind:'leaf',branch:'rules',x:980,y:2630,w:380,h:180,code:'RULE / 01',title:'账户与有效期',summary:'同一账号跨端 VIP 同步已定；期限算法待拍板。',status:'跨端已定',blocks:[['跨端身份 · 已定稿',['同一用户账号在 App 与小程序共享 VIP 身份、有效期及权益状态；服务端统一返回并校验各项关键权益。','任一端购买、用券或退款经服务端处理后，各端重新查询都得到最新状态；不同账号的绑定、合并口径仍待设计。']],['有效期细则 · 待拍板',['购买和体验券如何顺延、月与年如何计算、累计有效期上限仍需确认。','会员总有效期与付费会员期分别记账，避免体验券顺延误发每月凭证额度；已生成记录到期后仍可查看。']]]},
+      {id:'r-platform',kind:'leaf',branch:'rules',x:1460,y:2630,w:380,h:180,code:'RULE / 02',title:'平台支付与安全',summary:'一套主服务防重；各端按平台规则支付。',status:'规则已调研',blocks:[
+        ['统一主服务与防重',['iOS、Android 和小程序使用同一会员与体验券账本；在小程序核销后，各端查询到同一张券“已使用”和同一份 VIP 状态，不分别核销。','一套服务仍可能收到双击、重试或重复回调；数据库条件更新、券来源唯一约束和事务保证同一券只核销一次，同一付款只发放一次。锁可辅助，不能只靠进程内锁。','提交后当前端立即刷新，其他端进入页面或回到前台时读取最新状态；旧界面尚未刷新也不能再核销。']],
+        ['iOS App / 中国大陆 App Store',['VIP 是 App 内数字功能。Apple 3.1.1 要求使用 IAP；iOS App 不能直接用支付宝＋微信支付销售这项 VIP。','同账号可使用其他端购买的 VIP，但 Apple 3.1.3(b) 要求 iOS App 内也提供同一权益的 IAP 购买入口。']],
+        ['Android App',['国内渠道：可计划支付宝 APP 支付＋微信 APP 支付，前提是商户进件、产品开通、应用绑定与渠道审核。','Google Play 分发版本通常必须走 Play Billing，国内双支付收银台不能直接复用。']],
+        ['微信小程序',['小程序只接 wx.requestVirtualPayment 一个微信虚拟支付入口，不显示支付宝；Android／鸿蒙微信内实际走微信支付，iPhone／iPad 微信内按平台规则走 Apple 支付。','不能把数字 VIP 接普通 wx.requestPayment 或导向 App、H5 购买；单次固定期限按直购规划，不申请自动续费会员订阅。']],
+        ['官方规则',['Apple 审核指南：https://developer.apple.com/app-store/review/guidelines/','微信小程序运营规范：https://developers.weixin.qq.com/miniprogram/product/#_5-13-虚拟支付行为','微信虚拟支付接入：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/virtual-payment.html','Google Play 支付政策：https://support.google.com/googleplay/android-developer/answer/9858738?hl=en']]
+      ]},
+      {id:'r-qual',kind:'leaf',branch:'rules',x:1940,y:2630,w:380,h:180,code:'RULE / 03',title:'资质现状与上线门禁',summary:'公开公司名称已见；商户签约和付费协议尚无后台证明。',status:'需核后台',blocks:[['现有证据与已知问题',['官网协议公开运营者为杭州天才引擎文化传媒有限责任公司，但这不是营业执照或商户审核凭据。','用户此前称 iOS Apple 开发者账号为个人，转企业未成功。个人账号本身不是已查到的 IAP 禁入条件；但与公开公司运营主体的售卖、收款和协议口径需核对。','项目中有小程序 AppID；不能由此推断小程序主体、认证备案、支付商户号和购买权限已开通。']],['逐端核验',['iOS App：App Store Connect 的 Paid Apps Agreement、银行税务资料及四档 IAP 付费项目审核状态。','国内 Android：微信商户 APP 支付权限、AppID 绑定；支付宝移动应用上线及 APP 支付产品已开通。微信官方表中小微商户不支持 APP 支付。','小程序：主体类型、认证备案、服务类目、虚拟支付已签约、iOS Apple 支付及小程序简称；普通商户号不等于虚拟支付权限。','若上架 Google Play：核 Play Console 商家设置、Play Billing 接入与审核。']],['准入边界',['微信企业／事业单位／个体工商户虚拟支付要求小程序已认证、主体信息完备；个人通道要求工具类目、认证备案，并有限额。','自动续费才另申请会员订阅：安卓／鸿蒙近 30 天日均 DAU ≥ 1000；iOS ≥ 1 万，均另有首发满 90 天等条件。当前单次购买不以此为门槛。','缺少后台截图或审核记录的项目标记“未核实／上线阻塞”，不写成“已有资格”或“肯定无资格”。']],['官方准入来源',['Apple 付费协议：https://developer.apple.com/help/app-store-connect/manage-agreements/sign-and-update-agreements/','微信主体权限：https://pay.weixin.qq.com/doc/v3/merchant/4015616699','支付宝 APP 支付准备：https://opendocs.alipay.com/open/00dn74','微信虚拟支付个人通道：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/virtual-payment/person.html','微信订阅安卓：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/vips.html','微信订阅 iOS：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/vip.html']]]},
+      {id:'r-decisions',kind:'leaf',branch:'rules',x:2420,y:2630,w:380,h:180,code:'RULE / 04',title:'产品待拍板清单',summary:'最终金额、期限算法和售后细则仍需定案。',status:'待拍板',blocks:[['价格与支付',['四档最终售价、是否允许续购叠加及累计上限；Android 是否有 Google Play 分发包。四端同档位同价已定稿。','支付渠道按规则节点的合规矩阵实施，开通状态须以各平台后台核验。']],['凭证与体验券',['付费 VIP 每会员月主动领取 1 次、体验券期不产生资格已定；会员月边界和续购周期算法待确认。','额度扣减顺序、未使用额度到期处理、退款和凭证作废是否返还待确认。']],['邀请、客服与老用户',['注册后 1 个月内首次绑定计成功邀请并自动发券已定；月末截止算法、细化反作弊、前两位被邀请人奖励待确认。','券叠加与撤销、每日穿搭上线过渡、专属客服时段和服务目标、账号合并/注销与老用户补偿待确认。']]]}
+    ];
+    const byId = new Map(nodes.map(node => [node.id,node]));
+    const viewport = document.getElementById('viewport');
+    const world = document.getElementById('world');
+    const nodeLayer = document.getElementById('nodes');
+    const wires = document.getElementById('wires');
+    const miniSvg = document.getElementById('mini-svg');
+    const miniView = document.getElementById('mini-view');
+    const inspector = document.getElementById('inspector');
+    const search = document.getElementById('search');
+    const view = {x:0,y:0,z:.5};
+    const clamp = (value,min,max) => Math.min(max,Math.max(min,value));
+    const escapeHtml = value => String(value).replace(/[&<>"']/g,char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const svgNS = 'http://www.w3.org/2000/svg';
+    function svg(name,attrs,parent) { const el=document.createElementNS(svgNS,name); for (const [key,value] of Object.entries(attrs)) el.setAttribute(key,value); parent.appendChild(el); return el; }
+    function path(d,branch,spine=false) { svg('path',{d,class:`wire ${branch}${spine?' spine':''}`},wires); }
+    function dot(x,y,branch) { svg('circle',{cx:x,cy:y,r:5,class:`wire-dot ${branch}`},wires); }
+    const pageLinks = [
+      ['front','f-benefits','查看四项权益'],['front','f-plans','选择开通档位'],['front','f-orders','查看购买记录'],
+      ['front','f-ootd-calendar','进入每日穿搭'],['front','f-cert-create','发起交易凭证'],['front','f-cert-claim','领取本月凭证额度'],
+      ['front','f-avatar','选择头像挂件'],['front','f-support','联系专属客服'],
+      ['front','f-invite','邀请好友'],['front','f-coupons','查看体验券'],
+      ['f-benefits','f-plans','选择开通档位'],['f-plans','f-checkout','确认订单并支付'],
+      ['f-checkout','f-payment','查看支付结果'],['f-payment','f-orders','查看原订单'],
+      ['f-orders','f-order-detail','查看单笔详情'],['f-order-detail','f-payment','查询支付结果'],['f-order-detail','f-support','联系售后'],
+      ['f-ootd-calendar','f-ootd-edit','编辑所选日期'],['f-ootd-calendar','f-benefits','其他日期需了解权益'],['f-cert-create','f-quota','查看可用额度'],['f-cert-create','f-cert-claim','领取本期额度'],['f-cert-create','f-benefits','额度不足了解权益'],
+      ['f-quota','f-cert-claim','领取本期额度'],['f-cert-claim','f-quota','查看领取结果'],['f-quota','f-plans','额度不足开通会员'],['f-invite','f-invite-code','填写别人的邀请码'],['f-invite','f-invite-progress','查看邀请进度'],
+      ['f-invite-code','f-invite-progress','查看绑定记录'],['f-invite-code','f-coupons','查看自动发放的券'],
+      ['f-invite-progress','f-coupons','查看已发奖励券'],['f-coupons','f-coupon-use','确认使用券'],
+      ['f-coupon-use','front','查看新到期日'],['admin','a-orders','待办订单'],['admin','a-payment','支付待办'],['admin','a-refunds','退款待办'],
+      ['admin','a-recon-diff','对账差异'],['admin','a-members','会员查询'],['admin','a-invite','邀请异常'],
+      ['admin','a-support','客服待接待'],['admin','a-metrics','经营指标'],
+      ['a-tier','a-price','设置四端统一价格'],['a-price','a-orders','配置生成订单快照'],
+      ['a-orders','a-detail','查看原订单'],['a-detail','a-payment','结果未知或发放失败'],
+      ['a-payment','a-payment-case','进入补单处理'],['a-payment','a-recon','核对渠道账单'],
+      ['a-payment-case','a-member','核实后补发权益'],['a-payment-case','a-recon-diff','补单后复核差异'],
+      ['a-detail','a-refunds','进入售后'],['a-refunds','a-refund-detail','处理原渠道退款'],
+      ['a-refund-detail','a-member','按原来源冲正'],['a-refund-detail','a-recon-diff','已退未冲正'],
+      ['a-recon','a-recon-diff','打开批次差异'],['a-recon-diff','a-payment-case','已扣款未发放'],
+      ['a-recon-diff','a-refund-detail','退款差异'],['a-members','a-member','查看权益来源'],
+      ['a-member','a-quota','查看月度凭证额度'],['a-member','a-coupon','查看券来源'],
+      ['a-member','a-avatar','挂件生效与到期'],['a-invite','a-invite-review','可疑邀请审核'],
+      ['a-invite-review','a-coupon','审核奖励或撤券'],['a-coupon-rules','a-coupon','规则作用于新券'],
+      ['a-coupon','a-member','使用后顺延会员'],['a-support','a-support-settings','人员与队列配置'],
+      ['a-support','a-detail','客服查询订单'],['a-support','a-member','客服查询会员'],
+      ['a-metrics','a-orders','订单指标钻取'],['a-metrics','a-invite','邀请指标钻取'],
+      ['a-audit','a-payment-case','补单审计'],['a-audit','a-refund-detail','退款审计'],
+      ['a-audit','a-price','价格变更审计'],['a-audit','a-avatar','挂件配置审计'],
+      ['a-coupon-rules','a-metrics','查看规则效果']
+    ];
+    function makeWires() {
+      path('M 1670 205 C 1190 205 1020 335 750 505','front');
+      path('M 2190 205 C 2470 205 2530 360 2770 505','admin');
+      path('M 1930 310 L 1930 2370','rules',true);
+      const defs=svg('defs',{},wires);
+      const clientMarker=svg('marker',{id:'client-arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+      svg('path',{d:'M 1 1 L 9 5 L 1 9',fill:'none',stroke:'#8df5ec','stroke-width':1.7},clientMarker);
+      const clientPath=d=>svg('path',{d,class:'wire front client-page','marker-end':'url(#client-arrow)'},wires);
+      const clientVisualLinks=[
+        ['f-benefits','f-plans'],['f-plans','f-checkout'],
+        ['f-payment','f-orders'],['f-orders','f-order-detail'],
+        ['f-ootd-calendar','f-ootd-edit'],
+        ['f-invite','f-invite-progress'],['f-invite-progress','f-coupons'],
+        ['f-invite','f-invite-code'],
+        ['f-coupons','f-coupon-use']
+      ];
+      for (const [from,to] of clientVisualLinks) {
+        const a=byId.get(from),b=byId.get(to);
+        if (a.y===b.y) clientPath(`M ${a.x+a.w} ${a.y+a.h/2} L ${b.x} ${b.y+b.h/2}`);
+        else clientPath(`M ${a.x+a.w/2} ${a.y+a.h} L ${b.x+b.w/2} ${b.y}`);
+      }
+      clientPath('M 410 505 C 250 530 210 650 210 700'); // 会员首页 → 权益介绍
+      clientPath('M 580 600 L 590 700'); // 会员首页 → 档位选择
+      clientPath('M 410 505 L 395 505 L 395 945 L 590 945 L 590 960'); // 会员首页 → 购买记录
+      clientPath('M 970 890 L 970 925 L 210 925 L 210 960'); // 订单确认 → 支付结果
+      clientPath('M 970 1410 L 970 1445 L 210 1445 L 210 1480'); // 凭证发起 → 额度详情
+      clientPath('M 1130 1315 L 1150 1315 L 1150 1950 L 590 1950 L 590 2000'); // 凭证发起 → VIP 凭证领取
+      clientPath('M 370 1575 L 395 1575 L 395 1980 L 590 1980 L 590 2000'); // 凭证额度详情 → VIP 凭证领取
+      clientPath('M 750 505 L 790 505 L 790 1315 L 810 1315'); // 会员首页 → 凭证发起
+      clientPath('M 790 1315 L 790 1575 L 750 1575'); // 会员首页 → 挂件选择
+      clientPath('M 790 1575 L 810 1575'); // 会员首页 → 专属客服
+      clientPath('M 790 1575 L 790 1835 L 810 1835'); // 会员首页 → 我的体验券
+      clientPath('M 410 505 L 25 505 L 25 1835 L 50 1835'); // 会员首页 → 邀请好友
+      clientPath('M 25 1315 L 50 1315'); // 会员首页 → 每日穿搭
+      const marker=svg('marker',{id:'admin-arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+      svg('path',{d:'M 1 1 L 9 5 L 1 9',fill:'none',stroke:'#d5c6ff','stroke-width':1.7},marker);
+      const pagePath=d=>svg('path',{d,class:'wire admin admin-page','marker-end':'url(#admin-arrow)'},wires);
+      const visualLinks=[
+        ['a-tier','a-price'],['a-price','a-orders'],['a-orders','a-detail'],
+        ['a-payment','a-payment-case'],['a-refunds','a-refund-detail'],
+        ['a-recon','a-recon-diff'],['a-members','a-member'],
+        ['a-invite','a-invite-review'],['a-invite-review','a-coupon'],
+        ['a-support','a-support-settings'],
+        ['a-detail','a-refund-detail'],['a-payment','a-recon'],
+        ['a-payment-case','a-recon-diff'],['a-refund-detail','a-member'],
+        ['a-member','a-coupon'],['a-coupon-rules','a-metrics'],['a-avatar','a-audit']
+      ];
+      for (const [from,to] of visualLinks) {
+        const a=byId.get(from),b=byId.get(to);
+        if (a.y===b.y) pagePath(`M ${a.x+a.w} ${a.y+a.h/2} L ${b.x} ${b.y+b.h/2}`);
+        else pagePath(`M ${a.x+a.w/2} ${a.y+a.h} L ${b.x+b.w/2} ${b.y}`);
+      }
+      pagePath('M 2940 600 C 2970 645 3220 640 3220 700'); // 管理首页 → 订单列表
+      pagePath('M 3620 890 L 3620 930 L 2420 930 L 2420 970'); // 订单详情 → 支付异常列表
+      pagePath('M 3620 1430 L 3620 1470 L 2420 1470 L 2420 1510'); // 会员详情 → 凭证额度
+      pagePath('M 2420 1780 L 2420 1740 L 3620 1740 L 3620 1700'); // 体验券规则 → 体验券列表
+      path('M 1930 2515 L 1930 2584 L 1170 2584 L 2610 2584','rules',true);
+      for (const id of ['r-account','r-platform','r-qual','r-decisions']) {
+        const n=byId.get(id),cx=n.x+n.w/2;
+        path(`M ${cx} 2584 L ${cx} 2630`,'rules'); dot(cx,2584,'rules');
+      }
+    }
+    function renderNodes() {
+      for (const n of nodes) {
+        const el=document.createElement('button'); el.type='button'; el.className=`node ${n.kind} ${n.branch}`; el.dataset.id=n.id;
+        el.style.cssText=`left:${n.x}px;top:${n.y}px;--w:${n.w}px;--h:${n.h}px`;
+        const meta=document.createElement('div'); meta.className='meta';
+        const code=document.createElement('span'); code.textContent=n.code;
+        const badge=document.createElement('span'); badge.className=`status ${n.status.includes('待定')||n.status.includes('待核验')||n.status==='待拍板'||n.status==='需评审'?'open':n.status.includes('建议')?'proposed':''}`; badge.textContent=n.status;
+        meta.append(code,badge);
+        const title=document.createElement(n.kind==='root'?'h2':'h3'); title.textContent=n.title;
+        const summary=document.createElement('p'); summary.textContent=n.summary;
+        const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML='<span>OPEN NODE / 点击查看</span><b>↗</b>';
+        el.append(meta,title,summary,footer); el.addEventListener('click',()=>showNode(n.id)); nodeLayer.appendChild(el);
+        const mini=svg('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:34,class:`mini-node ${n.branch}`},miniSvg); mini.dataset.id=n.id;
+      }
+      miniSvg.appendChild(miniView);
+      document.getElementById('node-count').textContent=`${nodes.length} NODES`;
+    }
+    function renderItem(item) { return escapeHtml(item).replace(/https:\/\/[^\s<]+/g,url=>`<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`); }
+    function renderDetail(n,interactive=true) {
+      const priceHtml=n.price?`<div class="prices">${prices.map(([term,amount,per])=>`<div class="price"><b>${escapeHtml(amount)}</b><span>${escapeHtml(term)}</span><small>${escapeHtml(per)}</small></div>`).join('')}</div>`:'';
+      const blocks=n.blocks.map(([heading,items])=>`<section class="detail-block"><h3>${escapeHtml(heading)}</h3><ul>${items.map(item=>`<li>${renderItem(item)}</li>`).join('')}</ul></section>`).join('');
+      const related=interactive?pageLinks.flatMap(([from,to,label])=>from===n.id?[[to,label]]:to===n.id?[[from,label]]:[]).map(([id,label])=>`<button type="button" data-related="${id}">${escapeHtml(label)} · ${escapeHtml(byId.get(id).title)}</button>`).join(''):'';
+      return priceHtml+blocks+(related?`<section class="detail-block"><h3>关联页面 · 点击跳转</h3><div class="related">${related}</div></section>`:'')+(n.id==='root'?'<p class="inspector-note">讨论版：尚未接入支付、修改生产数据或发布会员能力。</p>':'');
+    }
+    function showNode(id) {
+      const n=byId.get(id); if(!n) return;
+      document.querySelectorAll('.node.active').forEach(el=>el.classList.remove('active'));
+      nodeLayer.querySelector(`[data-id="${id}"]`).classList.add('active');
+      document.getElementById('detail-meta').textContent=n.code+' · '+n.status;
+      document.getElementById('detail-title').textContent=n.title;
+      document.getElementById('detail-intro').textContent=n.summary;
+      document.getElementById('detail-body').innerHTML=renderDetail(n);
+      inspector.classList.add('open'); inspector.setAttribute('aria-hidden','false');
+      focusNode(id,Math.max(view.z,.75),true);
+    }
+    function closeDetail() { inspector.classList.remove('open'); inspector.setAttribute('aria-hidden','true'); document.querySelectorAll('.node.active').forEach(el=>el.classList.remove('active')); }
+    function renderView() {
+      viewport.scrollTo(0,0);
+      world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.z})`;
+      viewport.style.setProperty('--grid-size',`${32*view.z}px`);
+      viewport.style.setProperty('--grid-x',`${view.x}px`); viewport.style.setProperty('--grid-y',`${view.y}px`);
+      document.getElementById('zoom-value').textContent=`${Math.round(view.z*100)}%`;
+      miniView.setAttribute('x',clamp(-view.x/view.z,0,WORLD.width));
+      miniView.setAttribute('y',clamp(-view.y/view.z,0,WORLD.height));
+      miniView.setAttribute('width',Math.min(viewport.clientWidth/view.z,WORLD.width));
+      miniView.setAttribute('height',Math.min(viewport.clientHeight/view.z,WORLD.height));
+    }
+    function setCenter(wx,wy,z=view.z,withPanel=false) { view.z=clamp(z,.08,1.8); const available=viewport.clientWidth-(withPanel&&window.innerWidth>730?440:0); view.x=available/2-wx*view.z; view.y=viewport.clientHeight/2-wy*view.z; renderView(); }
+    function focusNode(id,z,withPanel=false) { const n=byId.get(id); setCenter(n.x+n.w/2,n.y+n.h/2,z,withPanel); }
+    function zoomAt(factor,cx=viewport.clientWidth/2,cy=viewport.clientHeight/2) { const z=clamp(view.z*factor,.08,1.8); const wx=(cx-view.x)/view.z,wy=(cy-view.y)/view.z; view.x=cx-wx*z; view.y=cy-wy*z; view.z=z; renderView(); }
+    function fitAll() { closeDetail(); const z=Math.min((viewport.clientWidth-70)/WORLD.width,(viewport.clientHeight-110)/WORLD.height); setCenter(WORLD.width/2,WORLD.height/2,z); }
+    function fitBranch(branch) { const items=nodes.filter(n=>n.branch===branch); const left=Math.min(...items.map(n=>n.x)),right=Math.max(...items.map(n=>n.x+n.w)),top=Math.min(...items.map(n=>n.y)),bottom=Math.max(...items.map(n=>n.y+n.h)); const z=Math.min((viewport.clientWidth-120)/(right-left),(viewport.clientHeight-210)/(bottom-top),.85); setCenter((left+right)/2,(top+bottom)/2,z); }
+    function renderPrint() {
+      const sheet=document.getElementById('print-sheet');
+      sheet.innerHTML='<h1>Lo查查 VIP 会员体系</h1><p>产品讨论版 · 固定期限购买 + 邀请体验券。价格与部分规则尚待确认。</p>'+
+        nodes.map(n=>`<section><h2>${escapeHtml(n.title)}</h2><p>${escapeHtml(n.summary)}</p>${renderDetail(n,false)}</section>`).join('');
+    }
+    makeWires(); renderNodes(); renderPrint();
+    setCenter(1930,590,window.innerWidth<730?.59:.52);
+    viewport.addEventListener('wheel',e=>{ e.preventDefault(); const r=viewport.getBoundingClientRect(); zoomAt(Math.exp(-e.deltaY*.0013),e.clientX-r.left,e.clientY-r.top); },{passive:false});
+    const pointers=new Map(); let last=null,pinch=null;
+    viewport.addEventListener('pointerdown',e=>{ if(e.target.closest('.node')) return; pointers.set(e.pointerId,[e.clientX,e.clientY]); viewport.setPointerCapture(e.pointerId); if(pointers.size===1){last=[e.clientX,e.clientY];pinch=null;} else if(pointers.size===2){const [a,b]=[...pointers.values()]; const cx=(a[0]+b[0])/2,cy=(a[1]+b[1])/2; pinch={distance:Math.hypot(a[0]-b[0],a[1]-b[1]),z:view.z,wx:(cx-view.x)/view.z,wy:(cy-view.y)/view.z};} });
+    viewport.addEventListener('pointermove',e=>{ if(!pointers.has(e.pointerId)) return; pointers.set(e.pointerId,[e.clientX,e.clientY]); if(pointers.size===2&&pinch){const [a,b]=[...pointers.values()];const cx=(a[0]+b[0])/2,cy=(a[1]+b[1])/2;view.z=clamp(pinch.z*Math.hypot(a[0]-b[0],a[1]-b[1])/Math.max(pinch.distance,1),.08,1.8);view.x=cx-pinch.wx*view.z;view.y=cy-pinch.wy*view.z;renderView();} else if(last){view.x+=e.clientX-last[0];view.y+=e.clientY-last[1];last=[e.clientX,e.clientY];renderView();} });
+    function endPointer(e){pointers.delete(e.pointerId);last=pointers.size===1?[...pointers.values()][0]:null;pinch=null;}
+    viewport.addEventListener('pointerup',endPointer);viewport.addEventListener('pointercancel',endPointer);
+    document.getElementById('zoom-in').addEventListener('click',()=>zoomAt(1.22));
+    document.getElementById('zoom-out').addEventListener('click',()=>zoomAt(1/1.22));
+    document.getElementById('fit').addEventListener('click',fitAll);
+    document.getElementById('print').addEventListener('click',()=>window.print());
+    document.getElementById('close').addEventListener('click',closeDetail);
+    document.getElementById('detail-body').addEventListener('click',e=>{const button=e.target.closest('[data-related]');if(button)showNode(button.dataset.related);});
+    document.querySelectorAll('[data-focus]').forEach(button=>button.addEventListener('click',()=>{ document.querySelectorAll('[data-focus]').forEach(x=>x.classList.toggle('selected',x===button)); closeDetail(); const id=button.dataset.focus; if((id==='admin'||id==='front')&&window.innerWidth>500) fitBranch(id); else focusNode(id,id==='root'?(window.innerWidth<730?.59:.52):.78); }));
+    search.addEventListener('keydown',e=>{ if(e.key==='Escape'){search.value='';closeDetail();search.blur();} if(e.key==='Enter'){const q=search.value.trim().toLowerCase(); if(!q)return; const hit=nodes.find(n=>n.title.toLowerCase().includes(q))||nodes.find(n=>[n.summary,...n.blocks.flatMap(block=>block[1])].join(' ').toLowerCase().includes(q)); if(hit)showNode(hit.id); else {search.value='';search.placeholder='未找到节点';} } });
+    miniSvg.addEventListener('click',e=>{const rect=miniSvg.getBoundingClientRect();setCenter((e.clientX-rect.left)/rect.width*WORLD.width,(e.clientY-rect.top)/rect.height*WORLD.height);});
+    window.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDetail();return;} if(e.target===search)return; if(e.key==='+'||e.key==='=')zoomAt(1.22); if(e.key==='-')zoomAt(1/1.22); if(e.key==='0')fitAll(); if(e.key.startsWith('Arrow')){e.preventDefault(); const d=75; if(e.key==='ArrowLeft')view.x+=d; if(e.key==='ArrowRight')view.x-=d; if(e.key==='ArrowUp')view.y+=d; if(e.key==='ArrowDown')view.y-=d; renderView();} });
+    window.addEventListener('resize',renderView);
+    if(nodes.length!==new Set(nodes.map(n=>n.id)).size||nodes.some(n=>n.x<0||n.y<0||n.x+n.w>WORLD.width||n.y+n.h>WORLD.height)) throw new Error('导图节点坐标或 ID 无效');
+    if(nodes.some((a,i)=>nodes.slice(i+1).some(b=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h))||pageLinks.some(([from,to])=>!byId.has(from)||!byId.has(to))) throw new Error('导图节点重叠或页面关联无效');
+  </script>
+</body>
+</html>
