@@ -48,6 +48,18 @@
     .node .footer b { color:var(--accent); font-weight:700; }
     .node.root .footer { left:30px; right:30px; }
     .node.hub .footer { bottom:8px; }
+    .node.compare { --accent:#e9c385; --glow:#c9974d24; padding:26px 30px; border-color:#8b775d; background:linear-gradient(135deg,#1c2e40,#151d32 60%,#29233a); }
+    .node.compare h3 { font-size:30px; }
+    .node.compare > p:not(.compare-note) { font-size:18px; }
+    .compare-cols { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
+    .compare-col { border:1px solid #3d6070; border-radius:17px; padding:18px 20px; background:#102a39b8; }
+    .compare-col.vip { border-color:#9f84d0; background:#2a2349bd; }
+    .compare-col h4 { margin:0 0 12px; color:#8eece2; font-size:23px; }
+    .compare-col.vip h4 { color:#d6c2ff; }
+    .compare-col ul { margin:0; padding:0; list-style:none; }
+    .compare-col li { min-height:58px; padding:10px 0; border-top:1px solid #ffffff1b; color:#d5e4ef; font-size:19px; line-height:1.4; }
+    .compare-col.vip li { color:#eee6ff; }
+    .compare-note { position:relative; z-index:1; margin-top:14px!important; color:#e4cda5!important; font-size:16px!important; }
     .topbar { position:fixed; z-index:10; top:18px; left:18px; right:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:67px; border:1px solid #35506d99; border-radius:17px; padding:10px 14px 10px 18px; background:#0d1829e8; box-shadow:0 12px 40px #0208138c; backdrop-filter:blur(16px); }
     .brand { display:flex; align-items:center; gap:11px; flex:none; }
     .brand-icon { display:grid; place-items:center; width:39px; height:39px; border:1px solid #5be2d8; border-radius:12px; color:#9ffff3; background:#20524c; box-shadow:0 0 22px #50dfd23a; font:900 17px/1 ui-monospace,SFMono-Regular,Menlo,monospace; }
@@ -71,7 +83,7 @@
     .minimap { position:fixed; z-index:6; right:20px; bottom:20px; width:222px; border:1px solid #48627d; border-radius:14px; padding:11px; background:#0b1729ee; box-shadow:0 14px 38px #020813a2; backdrop-filter:blur(14px); }
     .minimap-head { display:flex; justify-content:space-between; margin-bottom:7px; color:#83a7c1; font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.13em; }
     .minimap svg { display:block; width:100%; height:auto; border:1px solid #294055; border-radius:7px; background:#0c182b; cursor:crosshair; }
-    .mini-node { fill:#4a7782; } .mini-node.admin { fill:#866fc0; } .mini-node.rules { fill:#b58958; } .mini-node.root { fill:#75e9db; }
+    .mini-node { fill:#4a7782; } .mini-node.admin { fill:#866fc0; } .mini-node.rules,.mini-node.compare { fill:#b58958; } .mini-node.root { fill:#75e9db; }
     #mini-view { fill:#66e7dd19; stroke:#8ff5e9; stroke-width:14; pointer-events:none; }
     .inspector { position:fixed; z-index:9; top:99px; right:18px; bottom:178px; width:min(452px,calc(100vw - 36px)); display:flex; flex-direction:column; border:1px solid #52708d; border-radius:20px; overflow:hidden; background:#0e1b2eea; box-shadow:0 30px 70px #020813c7; backdrop-filter:blur(22px); transform:translateX(calc(100% + 40px)); opacity:0; pointer-events:none; transition:transform .25s,opacity .25s; }
     .inspector.open { transform:translateX(0); opacity:1; pointer-events:auto; }
@@ -111,7 +123,7 @@
     <div class="top-actions">
       <span class="version">INTERACTIVE MAP · 2026.09.29</span>
       <input class="search" id="search" type="search" aria-label="搜索导图节点" placeholder="搜索节点 ↵">
-      <button class="nav selected" data-focus="root">全局</button><button class="nav" data-focus="front">用户端</button><button class="nav" data-focus="admin">管理端</button><button class="nav" data-focus="rules">统一规则</button>
+      <button class="nav selected" data-focus="root">全局</button><button class="nav" data-focus="compare">权益对比</button><button class="nav" data-focus="front">用户端</button><button class="nav" data-focus="admin">管理端</button><button class="nav" data-focus="rules">统一规则</button>
       <button class="icon-button" id="fit" title="适应全部内容">全图</button><button class="icon-button" id="print" title="打印完整规则">打印</button>
     </div>
   </header>
@@ -119,7 +131,7 @@
     <div class="hud-card"><strong>DRAG</strong> 拖动画布　<strong>SCROLL / PINCH</strong> 缩放<br>每格是独立页面 · 青/紫箭头表示页面跳转 · Esc 关闭</div>
     <div class="zoom"><button id="zoom-out" aria-label="缩小">−</button><output id="zoom-value">100%</output><button id="zoom-in" aria-label="放大">+</button></div>
   </aside>
-  <aside class="minimap" aria-label="导图小地图"><div class="minimap-head"><span>MINIMAP / 导航</span><span id="node-count">49 NODES</span></div><svg id="mini-svg" viewBox="0 0 3880 2910" role="img" aria-label="点击小地图移动画布"><rect id="mini-view" x="0" y="0" width="100" height="100"></rect></svg></aside>
+  <aside class="minimap" aria-label="导图小地图"><div class="minimap-head"><span>MINIMAP / 导航</span><span id="node-count">50 NODES</span></div><svg id="mini-svg" viewBox="0 0 3880 2910" role="img" aria-label="点击小地图移动画布"><rect id="mini-view" x="0" y="0" width="100" height="100"></rect></svg></aside>
   <aside class="inspector" id="inspector" aria-label="节点详情" aria-hidden="true"><div class="inspector-head"><div class="inspector-top"><span id="detail-meta">NODE DETAILS</span><button class="close" id="close" aria-label="关闭详情">×</button></div><h2 id="detail-title"></h2><p class="inspector-intro" id="detail-intro"></p></div><div class="inspector-body" id="detail-body"></div></aside>
   <main class="print-sheet" id="print-sheet"></main>
   <script>
@@ -127,6 +139,11 @@
     const prices = [['1 个月','¥9.8','¥9.8 / 月'],['3 个月','¥26.8','约 ¥8.93 / 月'],['6 个月','¥49.8','¥8.3 / 月'],['12 个月','¥88.8','¥7.4 / 月']];
     const nodes = [
       {id:'root',kind:'root',branch:'root',x:1670,y:100,w:520,h:210,code:'00 / CORE',title:'VIP 会员体系',summary:'四端同价；凭证主动领取、邀请券自动发放；跨端共享 VIP。',status:'已明确方向',blocks:[['产品方向',['1、3、6、12 个月固定期限单次购买，不自动续费；最长售卖档位是 1 年，不代表累计有效期只能有 1 年。','两条获得路径：购买会员；邀请好友自动获体验券并主动使用。','五项权益：每日穿搭、付费会员月凭证领取、头像挂件、VIP 专属客服、App 免广告。','已定稿：同一用户账号在 App 和小程序共享 VIP；同一档位四端同价，具体金额仍待定。']],['文档性质',['这是供产品和开发评审的讨论图。建议价、平台支付准入与部分细则尚未最终确认；不表示功能已开发或价格已生效。']]]},
+      {id:'compare',kind:'compare',branch:'compare',x:1230,y:650,w:990,h:660,code:'01 / BENEFITS',title:'VIP 权益对比',summary:'普通用户与 VIP 用户 · 五项权益速览',status:'讨论版',blocks:[
+        ['普通用户',['每日穿搭：仅能设置当天','交易凭证：原有免费总额度 3 次','头像挂件：无 VIP 专属挂件','客服：可联系普通客服','App 广告：接入后按广告规则展示']],
+        ['VIP 用户',['每日穿搭：可设置任意合法日期','交易凭证：保留原 3 次；付费期每会员月可主动领 1 次','头像挂件：可选平台内置 VIP 挂件','客服：付费 VIP 可进专属客服；体验券待定','App 广告：有效期内全部免展示']],
+        ['口径说明',['体验券形成的有效 VIP 期享有免广告；不产生月度交易凭证领取资格。App 广告尚未接入。']]
+      ]},
       {id:'front',kind:'leaf',branch:'front',x:410,y:410,w:340,h:190,code:'CLIENT / 00',title:'VIP 会员首页',summary:'会员状态、到期时间和各页面入口。',status:'规划页面',blocks:[['首页信息',['展示未开通、有效、即将到期或已到期状态；服务端返回总有效期、付费期、来源与本期凭证可领状态。','可进入权益介绍、档位选择、购买记录、每日穿搭、交易凭证与领取页、头像挂件、专属客服、邀请好友和券包；展示有效期内的 App 免广告说明。']],['跨端规则 · 已定稿',['同一用户账号在 App 与小程序读取同一份 VIP 身份、有效期和权益状态；购买、用券或退款后重新查询即得到相同结果。','到期仍可查看历史穿搭、凭证与订单；未开通时不隐藏普通客服或当天穿搭入口。']]]},
       {id:'admin',kind:'leaf',branch:'admin',x:2770,y:410,w:340,h:190,code:'ADMIN / 00',title:'会员管理首页',summary:'待办、状态与常用页面入口。',status:'规划页面',blocks:[['页面内容',['展示待核实支付、待处理退款、对账差异、即将到期会员、邀请异常和 VIP 专属客服待接待数量。','每个数字可进入对应列表并保留筛选条件；展示最近处理记录和渠道准入状态提醒。']],['使用边界',['这是管理端真实首页的规划，不是把业务规则塞进一个总览页；具体操作都在独立页面完成。','运营、客服、财务看到各自权限内的入口和待办。']]]},
       {id:'rules',kind:'hub',branch:'rules',x:1720,y:2370,w:420,h:145,code:'03 / SHARED LOGIC',title:'统一规则 · 已定与待定',summary:'跨端同账号共享 VIP 已定；有效期算法等仍待拍板。',status:'部分定稿',blocks:[['统一规则',['已定稿：同一用户账号在 App 与小程序共享 VIP 身份、有效期和权益状态；两端都以服务端会员账本为准。','购买、用券、退款、人工调整与月度凭证额度要分别记来源；具体有效期算法与账号合并口径仍待拍板。']]]},
@@ -312,7 +329,14 @@
         const title=document.createElement(n.kind==='root'?'h2':'h3'); title.textContent=n.title;
         const summary=document.createElement('p'); summary.textContent=n.summary;
         const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML='<span>OPEN NODE / 点击查看</span><b>↗</b>';
-        el.append(meta,title,summary,footer); el.addEventListener('click',()=>showNode(n.id)); nodeLayer.appendChild(el);
+        el.append(meta,title,summary);
+        if(n.kind==='compare') {
+          const cols=document.createElement('div'); cols.className='compare-cols';
+          cols.innerHTML=n.blocks.slice(0,2).map(([heading,items],i)=>`<section class="compare-col ${i?'vip':'free'}"><h4>${escapeHtml(heading)}</h4><ul>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`).join('');
+          const note=document.createElement('p'); note.className='compare-note'; note.textContent=n.blocks[2][1][0];
+          el.append(cols,note);
+        }
+        el.append(footer); el.addEventListener('click',()=>showNode(n.id)); nodeLayer.appendChild(el);
         const mini=svg('rect',{x:n.x,y:n.y,width:n.w,height:n.h,rx:34,class:`mini-node ${n.branch}`},miniSvg); mini.dataset.id=n.id;
       }
       miniSvg.appendChild(miniView);
@@ -334,7 +358,7 @@
       document.getElementById('detail-intro').textContent=n.summary;
       document.getElementById('detail-body').innerHTML=renderDetail(n);
       inspector.classList.add('open'); inspector.setAttribute('aria-hidden','false');
-      focusNode(id,Math.max(view.z,.75),true);
+      focusNode(id,n.kind==='compare'?Math.min(.75,(viewport.clientWidth-32)/n.w):Math.max(view.z,.75),true);
     }
     function closeDetail() { inspector.classList.remove('open'); inspector.setAttribute('aria-hidden','true'); document.querySelectorAll('.node.active').forEach(el=>el.classList.remove('active')); }
     function renderView() {
@@ -372,7 +396,7 @@
     document.getElementById('print').addEventListener('click',()=>window.print());
     document.getElementById('close').addEventListener('click',closeDetail);
     document.getElementById('detail-body').addEventListener('click',e=>{const button=e.target.closest('[data-related]');if(button)showNode(button.dataset.related);});
-    document.querySelectorAll('[data-focus]').forEach(button=>button.addEventListener('click',()=>{ document.querySelectorAll('[data-focus]').forEach(x=>x.classList.toggle('selected',x===button)); closeDetail(); const id=button.dataset.focus; if((id==='admin'||id==='front')&&window.innerWidth>500) fitBranch(id); else focusNode(id,id==='root'?(window.innerWidth<730?.59:.52):.78); }));
+    document.querySelectorAll('[data-focus]').forEach(button=>button.addEventListener('click',()=>{ document.querySelectorAll('[data-focus]').forEach(x=>x.classList.toggle('selected',x===button)); closeDetail(); const id=button.dataset.focus; if((id==='admin'||id==='front')&&window.innerWidth>500) fitBranch(id); else focusNode(id,id==='root'?(window.innerWidth<730?.59:.52):id==='compare'?Math.min(.78,(viewport.clientWidth-32)/byId.get(id).w):.78); }));
     search.addEventListener('keydown',e=>{ if(e.key==='Escape'){search.value='';closeDetail();search.blur();} if(e.key==='Enter'){const q=search.value.trim().toLowerCase(); if(!q)return; const hit=nodes.find(n=>n.title.toLowerCase().includes(q))||nodes.find(n=>[n.summary,...n.blocks.flatMap(block=>block[1])].join(' ').toLowerCase().includes(q)); if(hit)showNode(hit.id); else {search.value='';search.placeholder='未找到节点';} } });
     miniSvg.addEventListener('click',e=>{const rect=miniSvg.getBoundingClientRect();setCenter((e.clientX-rect.left)/rect.width*WORLD.width,(e.clientY-rect.top)/rect.height*WORLD.height);});
     window.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeDetail();return;} if(e.target===search)return; if(e.key==='+'||e.key==='=')zoomAt(1.22); if(e.key==='-')zoomAt(1/1.22); if(e.key==='0')fitAll(); if(e.key.startsWith('Arrow')){e.preventDefault(); const d=75; if(e.key==='ArrowLeft')view.x+=d; if(e.key==='ArrowRight')view.x-=d; if(e.key==='ArrowUp')view.y+=d; if(e.key==='ArrowDown')view.y-=d; renderView();} });
