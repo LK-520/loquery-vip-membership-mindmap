@@ -109,7 +109,7 @@
   <header class="topbar">
     <div class="brand"><div class="brand-icon" aria-hidden="true">L/</div><div><small>LOCHACHA / PRODUCT SYSTEM</small><strong>VIP 会员体系</strong></div></div>
     <div class="top-actions">
-      <span class="version">INTERACTIVE MAP · 2026.09.25</span>
+      <span class="version">INTERACTIVE MAP · 2026.09.29</span>
       <input class="search" id="search" type="search" aria-label="搜索导图节点" placeholder="搜索节点 ↵">
       <button class="nav selected" data-focus="root">全局</button><button class="nav" data-focus="front">用户端</button><button class="nav" data-focus="admin">管理端</button><button class="nav" data-focus="rules">统一规则</button>
       <button class="icon-button" id="fit" title="适应全部内容">全图</button><button class="icon-button" id="print" title="打印完整规则">打印</button>
@@ -119,19 +119,19 @@
     <div class="hud-card"><strong>DRAG</strong> 拖动画布　<strong>SCROLL / PINCH</strong> 缩放<br>每格是独立页面 · 青/紫箭头表示页面跳转 · Esc 关闭</div>
     <div class="zoom"><button id="zoom-out" aria-label="缩小">−</button><output id="zoom-value">100%</output><button id="zoom-in" aria-label="放大">+</button></div>
   </aside>
-  <aside class="minimap" aria-label="导图小地图"><div class="minimap-head"><span>MINIMAP / 导航</span><span id="node-count">48 NODES</span></div><svg id="mini-svg" viewBox="0 0 3880 2910" role="img" aria-label="点击小地图移动画布"><rect id="mini-view" x="0" y="0" width="100" height="100"></rect></svg></aside>
+  <aside class="minimap" aria-label="导图小地图"><div class="minimap-head"><span>MINIMAP / 导航</span><span id="node-count">49 NODES</span></div><svg id="mini-svg" viewBox="0 0 3880 2910" role="img" aria-label="点击小地图移动画布"><rect id="mini-view" x="0" y="0" width="100" height="100"></rect></svg></aside>
   <aside class="inspector" id="inspector" aria-label="节点详情" aria-hidden="true"><div class="inspector-head"><div class="inspector-top"><span id="detail-meta">NODE DETAILS</span><button class="close" id="close" aria-label="关闭详情">×</button></div><h2 id="detail-title"></h2><p class="inspector-intro" id="detail-intro"></p></div><div class="inspector-body" id="detail-body"></div></aside>
   <main class="print-sheet" id="print-sheet"></main>
   <script>
     const WORLD = { width:3880, height:2910 };
     const prices = [['1 个月','¥9.8','¥9.8 / 月'],['3 个月','¥26.8','约 ¥8.93 / 月'],['6 个月','¥49.8','¥8.3 / 月'],['12 个月','¥88.8','¥7.4 / 月']];
     const nodes = [
-      {id:'root',kind:'root',branch:'root',x:1670,y:100,w:520,h:210,code:'00 / CORE',title:'VIP 会员体系',summary:'四端同价；凭证主动领取、邀请券自动发放；跨端共享 VIP。',status:'已明确方向',blocks:[['产品方向',['1、3、6、12 个月固定期限单次购买，不自动续费；最长售卖档位是 1 年，不代表累计有效期只能有 1 年。','两条获得路径：购买会员；邀请好友自动获体验券并主动使用。','四项权益：每日穿搭、付费会员月凭证领取、头像挂件、VIP 专属客服。','已定稿：同一用户账号在 App 和小程序共享 VIP；同一档位四端同价，具体金额仍待定。']],['文档性质',['这是供产品和开发评审的讨论图。建议价、平台支付准入与部分细则尚未最终确认；不表示功能已开发或价格已生效。']]]},
-      {id:'front',kind:'leaf',branch:'front',x:410,y:410,w:340,h:190,code:'CLIENT / 00',title:'VIP 会员首页',summary:'会员状态、到期时间和各页面入口。',status:'规划页面',blocks:[['首页信息',['展示未开通、有效、即将到期或已到期状态；服务端返回总有效期、付费期、来源与本期凭证可领状态。','可进入权益介绍、档位选择、购买记录、每日穿搭、交易凭证与领取页、头像挂件、专属客服、邀请好友和券包。']],['跨端规则 · 已定稿',['同一用户账号在 App 与小程序读取同一份 VIP 身份、有效期和权益状态；购买、用券或退款后重新查询即得到相同结果。','到期仍可查看历史穿搭、凭证与订单；未开通时不隐藏普通客服或当天穿搭入口。']]]},
+      {id:'root',kind:'root',branch:'root',x:1670,y:100,w:520,h:210,code:'00 / CORE',title:'VIP 会员体系',summary:'四端同价；凭证主动领取、邀请券自动发放；跨端共享 VIP。',status:'已明确方向',blocks:[['产品方向',['1、3、6、12 个月固定期限单次购买，不自动续费；最长售卖档位是 1 年，不代表累计有效期只能有 1 年。','两条获得路径：购买会员；邀请好友自动获体验券并主动使用。','五项权益：每日穿搭、付费会员月凭证领取、头像挂件、VIP 专属客服、App 免广告。','已定稿：同一用户账号在 App 和小程序共享 VIP；同一档位四端同价，具体金额仍待定。']],['文档性质',['这是供产品和开发评审的讨论图。建议价、平台支付准入与部分细则尚未最终确认；不表示功能已开发或价格已生效。']]]},
+      {id:'front',kind:'leaf',branch:'front',x:410,y:410,w:340,h:190,code:'CLIENT / 00',title:'VIP 会员首页',summary:'会员状态、到期时间和各页面入口。',status:'规划页面',blocks:[['首页信息',['展示未开通、有效、即将到期或已到期状态；服务端返回总有效期、付费期、来源与本期凭证可领状态。','可进入权益介绍、档位选择、购买记录、每日穿搭、交易凭证与领取页、头像挂件、专属客服、邀请好友和券包；展示有效期内的 App 免广告说明。']],['跨端规则 · 已定稿',['同一用户账号在 App 与小程序读取同一份 VIP 身份、有效期和权益状态；购买、用券或退款后重新查询即得到相同结果。','到期仍可查看历史穿搭、凭证与订单；未开通时不隐藏普通客服或当天穿搭入口。']]]},
       {id:'admin',kind:'leaf',branch:'admin',x:2770,y:410,w:340,h:190,code:'ADMIN / 00',title:'会员管理首页',summary:'待办、状态与常用页面入口。',status:'规划页面',blocks:[['页面内容',['展示待核实支付、待处理退款、对账差异、即将到期会员、邀请异常和 VIP 专属客服待接待数量。','每个数字可进入对应列表并保留筛选条件；展示最近处理记录和渠道准入状态提醒。']],['使用边界',['这是管理端真实首页的规划，不是把业务规则塞进一个总览页；具体操作都在独立页面完成。','运营、客服、财务看到各自权限内的入口和待办。']]]},
       {id:'rules',kind:'hub',branch:'rules',x:1720,y:2370,w:420,h:145,code:'03 / SHARED LOGIC',title:'统一规则 · 已定与待定',summary:'跨端同账号共享 VIP 已定；有效期算法等仍待拍板。',status:'部分定稿',blocks:[['统一规则',['已定稿：同一用户账号在 App 与小程序共享 VIP 身份、有效期和权益状态；两端都以服务端会员账本为准。','购买、用券、退款、人工调整与月度凭证额度要分别记来源；具体有效期算法与账号合并口径仍待拍板。']]]},
 
-      {id:'f-benefits',kind:'leaf',branch:'front',x:50,y:700,w:320,h:190,code:'CLIENT / 01',title:'VIP 权益介绍',summary:'四项权益、免费边界与到期说明。',status:'规划页面',blocks:[['页面内容',['展示每日穿搭任意日期编辑、付费期每会员月可主动领取 1 张交易凭证额度、内置头像挂件、VIP 专属客服。','普通用户仍可设置当天穿搭、使用原有 3 次免费凭证额度，并联系普通客服；体验券期不产生月度凭证领取资格。']],['页面跳转',['从会员首页或受限功能进入；点击开通进入会员档位选择。','说明挂件只代表会员身份、凭证不代表平台担保。']]]},
+      {id:'f-benefits',kind:'leaf',branch:'front',x:50,y:700,w:320,h:190,code:'CLIENT / 01',title:'VIP 权益介绍',summary:'五项权益、免费边界与到期说明。',status:'规划页面',blocks:[['页面内容',['展示每日穿搭任意日期编辑、付费期每会员月可主动领取 1 张交易凭证额度、内置头像挂件、VIP 专属客服，以及有效 VIP 的 App 全部广告免展示。','普通用户仍可设置当天穿搭、使用原有 3 次免费凭证额度，并联系普通客服；App 广告按普通用户规则展示。已核销体验券形成的 VIP 期同享 App 免广告，但不产生月度凭证领取资格。']],['页面跳转',['从会员首页或受限功能进入；点击开通进入会员档位选择。','说明挂件只代表会员身份、凭证不代表平台担保。']]]},
       {id:'f-plans',kind:'leaf',branch:'front',x:430,y:700,w:320,h:190,code:'CLIENT / 02',title:'会员档位选择',summary:'四档期限和四端一致的实际售价。',status:'建议价',price:true,blocks:[['档位展示',['1 个月 ¥9.8、3 个月 ¥26.8、6 个月 ¥49.8、12 个月 ¥88.8 为讨论建议价；正式同档位售价四端一致。','展示单次购买、不自动续费、档位期限和续购叠加待确认的规则。']],['页面跳转',['选择可售档位进入订单确认与支付；只有各端实际价格已配置为一致且渠道获准，才显示该端可购按钮。','已是 VIP 可再次购买；累计有效期上限和月末计算方式待拍板。']]]},
       {id:'f-checkout',kind:'leaf',branch:'front',x:810,y:700,w:320,h:190,code:'CLIENT / 03',title:'订单确认与支付',summary:'核对档位、价格、协议并拉起本端支付。',status:'规划页面',blocks:[['确认信息',['展示所选期限、实付金额、支付渠道、预计权益与协议；服务端创建订单并保存价格快照。','iOS App 的数字 VIP 走 Apple IAP；国内 Android App 在获准后可选微信或支付宝；小程序只显示微信虚拟支付入口。']],['支付分支',['用户取消/失败不发权益；返回页面进入支付结果与查单。','小程序统一调用 wx.requestVirtualPayment；Android/鸿蒙微信内实际走微信支付，iPhone/iPad 微信内按平台规则走 Apple 支付。']]]},
       {id:'f-payment',kind:'leaf',branch:'front',x:50,y:960,w:320,h:190,code:'CLIENT / 04',title:'支付结果与查单',summary:'确认中、已开通、失败与迟到成功。',status:'规划页面',blocks:[['状态展示',['客户端返回仅显示“确认中”；服务端核实成功并发放权益后才展示开通成功、实际到期日和返回会员首页。','取消/明确失败显示未开通；未知结果提供原订单查询，避免让用户重复付款。']],['异常路径',['通知延迟、发放失败或超时后迟到成功继续查原单，可进入订单详情查看进度和联系售后。','同一笔付款不会重复增加会员时长。']]]},
@@ -150,7 +150,7 @@
       {id:'f-invite-code',kind:'leaf',branch:'front',x:50,y:2000,w:320,h:190,code:'CLIENT / 18',title:'填写邀请码',summary:'注册 1 个月内首次绑定邀请人。',status:'规划页面',blocks:[['可填写资格',['主服务以注册时刻判断 1 个月窗口；已注册但仍在窗口内的老用户也可补填。页面展示截止时刻。','超过 1 个月不允许填写，但仍可分享自己的邀请码邀请别人；月末计算口径待确认。']],['提交与结果',['只能首次绑定一位邀请人，不可自邀、重复绑定或改绑；服务端校验后写入唯一邀请关系，计一次成功邀请。','按当前里程碑自动发券到对应用户券包；页面展示绑定结果，并可去邀请进度或券包。']]]},
       {id:'f-cert-claim',kind:'leaf',branch:'front',x:430,y:2000,w:320,h:190,code:'CLIENT / 17',title:'VIP 凭证领取',summary:'付费会员每会员月主动领 1 次。',status:'规划页面',blocks:[['领取资格',['仅付费 VIP 当前会员月显示 1 次免费交易凭证额度资格、本期截止时间和已领状态；体验券 VIP 不产生资格。','普通用户原有 3 次免费额度照旧，无需在本页领取。']],['领取结果',['用户点击领取后，主服务以账号和会员月唯一约束防双端重复领取；成功显示领取时刻和本期有效期。','已领、已用或过期状态明确展示；领取后返回凭证额度详情，再进入交易凭证发起。']]]},
 
-      {id:'a-tier',kind:'leaf',branch:'admin',x:2250,y:700,w:340,h:190,code:'ADMIN / 01',title:'会员档位设置',summary:'配置 1、3、6、12 个月期限和权益。',status:'规划页面',blocks:[['页面字段',['档位名称、期限、权益说明、启停状态与生效时间；保留版本记录。','最长售卖档位为 12 个月，不代表累计有效期封顶 12 个月。']],['页面动作',['新增或调整档位后进入 VIP 价格设置；已创建订单沿用原档位快照。','停用仅阻止新订单，不改已支付会员期限；变更写入操作审计。']]]},
+      {id:'a-tier',kind:'leaf',branch:'admin',x:2250,y:700,w:340,h:190,code:'ADMIN / 01',title:'会员档位设置',summary:'配置 1、3、6、12 个月期限和权益。',status:'规划页面',blocks:[['页面字段',['档位名称、期限、五项权益说明（含 App 免广告）、启停状态与生效时间；保留版本记录。','最长售卖档位为 12 个月，不代表累计有效期封顶 12 个月。']],['页面动作',['新增或调整档位后进入 VIP 价格设置；已创建订单沿用原档位快照。','停用仅阻止新订单，不改已支付会员期限；变更写入操作审计。']]]},
       {id:'a-price',kind:'leaf',branch:'admin',x:2650,y:700,w:340,h:190,code:'ADMIN / 02',title:'VIP 价格设置',summary:'每档统一实付价及四端支付映射。',status:'规划页面',blocks:[['页面字段',['每档只维护一个统一人民币实付价；核对 iOS IAP、国内 Android 微信/支付宝、小程序虚拟支付与可能的 Play Billing 映射价格。','显示各平台审核、商户准入和购买入口状态；若一端无法配置同价，调整档位价或暂缓该端开售。']],['页面动作',['发布新价格仅影响新订单；订单详情保留当时价格与配置版本。','价格、渠道与审核状态变更需复核并进入操作审计。']]]},
       {id:'a-orders',kind:'leaf',branch:'admin',x:3050,y:700,w:340,h:190,code:'ADMIN / 03',title:'订单列表',summary:'检索订单并进入对应处理页面。',status:'规划页面',blocks:[['列表字段',['用户、内部订单号、渠道交易号、档位、入口端、渠道、金额、创建时间、支付/发放/退款状态。','筛选待支付、确认中、已支付待发放、已完成、已关闭、退款中及异常。']],['页面入口',['点击订单进入订单详情；结果未知转支付异常列表，退款单转退款列表，对账差异保留来源标记。','列表不可直接改成“已支付”或“已发放”。']]]},
       {id:'a-detail',kind:'leaf',branch:'admin',x:3450,y:700,w:340,h:190,code:'ADMIN / 04',title:'订单详情',summary:'原单价格、支付证据与权益时间线。',status:'规划页面',blocks:[['详情内容',['展示订单快照、渠道交易校验、创建/支付/发放/退款/冲正时间线和失败原因。','服务端核实付款才发权益；前端支付成功提示不构成开通证据。']],['页面跳转',['结果未知进入补单处理；售后进入退款处理；查看对应会员权益来源和渠道对账差异。','敏感支付凭证仅按最小权限展示。']]]},
@@ -163,7 +163,7 @@
       {id:'a-recon',kind:'leaf',branch:'admin',x:2250,y:1240,w:340,h:190,code:'ADMIN / 09',title:'对账批次',summary:'导入或拉取渠道账单，查看核对结果。',status:'规划页面',blocks:[['页面内容',['按渠道、日期、币种管理支付和退款账单批次，展示订单/权益匹配数、差异数和处理进度。','小程序按实际微信或 Apple 支付路由分开核对。']],['页面入口',['点击批次查看对账差异；保留账单来源、导入时间与复核记录。']]]},
       {id:'a-recon-diff',kind:'leaf',branch:'admin',x:2650,y:1240,w:340,h:190,code:'ADMIN / 10',title:'对账差异处理',summary:'逐笔闭环扣款、发放与退款差异。',status:'规划页面',blocks:[['差异类型',['已扣款未发放、已发放但渠道未成功、重复发放、渠道已退未冲正、金额或交易号不符。','每条差异关联原订单、平台交易和权益流水。']],['处理去向',['核实后转补单处理、退款处理或会员权益修复；记录处理人、结论和复核人。','不以修改看板数据代替账务闭环。']]]},
       {id:'a-members',kind:'leaf',branch:'admin',x:3050,y:1240,w:340,h:190,code:'ADMIN / 11',title:'会员列表',summary:'按账号查询状态、期限与获得来源。',status:'规划页面',blocks:[['列表字段',['账号、VIP 状态、总到期时间、付费会员期、体验券期、最近购买与月度额度。','支持按有效、到期、来源、异常状态筛选。']],['页面入口',['点击会员进入会员详情；跨 App、小程序读取同一服务端会员身份。']]]},
-      {id:'a-member',kind:'leaf',branch:'admin',x:3450,y:1240,w:340,h:190,code:'ADMIN / 12',title:'会员详情与权益流水',summary:'逐来源追踪购买、用券和人工调整。',status:'规划页面',blocks:[['详情内容',['展示总有效期、付费期、券期、订单/券来源、变更前后值及跨端生效状态。','退款只冲正原订单来源；不能直接覆盖到期字段并误扣其他购买或券。']],['页面动作',['可跳订单详情、体验券、凭证额度；人工修复需原因、关联单号、权限与复核。','每日穿搭权限依据服务端 VIP 状态：普通用户仅当天，VIP 任意合法日期。']]]},
+      {id:'a-member',kind:'leaf',branch:'admin',x:3450,y:1240,w:340,h:190,code:'ADMIN / 12',title:'会员详情与权益流水',summary:'逐来源追踪购买、用券和人工调整。',status:'规划页面',blocks:[['详情内容',['展示总有效期、付费期、券期、订单/券来源、变更前后值、跨端生效状态与当前 App 免广告状态。','退款只冲正原订单来源；不能直接覆盖到期字段并误扣其他购买或券。']],['页面动作',['可跳订单详情、体验券、凭证额度；人工修复需原因、关联单号、权限与复核。','每日穿搭权限依据服务端 VIP 状态：普通用户仅当天，VIP 任意合法日期。']]]},
 
       {id:'a-quota',kind:'leaf',branch:'admin',x:2250,y:1510,w:340,h:190,code:'ADMIN / 13',title:'交易凭证额度流水',summary:'免费 3 次与付费会员月主动领取分账。',status:'规划页面',blocks:[['流水字段',['原免费总额度与付费 VIP 每会员月 1 次的可领、领取、使用、失效、补发、冲正及关联凭证。','记录领取人、领取时刻、会员月周期和唯一领取标识；双方签署完成时才扣发起方额度。']],['异常入口',['双端重复领取、第二签失败、退款与作废异常可关联会员详情、订单及操作审计。','体验券期不产生领取资格；退款或作废是否返还仍待拍板。']]]},
       {id:'a-invite',kind:'leaf',branch:'admin',x:2650,y:1510,w:340,h:190,code:'ADMIN / 14',title:'邀请记录',summary:'注册窗口、绑定关系与自动发券流水。',status:'规划页面',blocks:[['列表字段',['邀请人、被邀请人、注册时刻、填写截止、首次绑定时刻、累计有效人数、自动奖励券和状态。','首次有效绑定计一次成功邀请；2 人里程碑给邀请人 7 天券，第 3 人起双方各得 1 天券。']],['页面入口',['疑似自邀、重复注册或撤销关系进入邀请异常审核；已发奖励可跳体验券列表。','超过注册 1 个月或已绑定者不可再填邀请码，但仍可邀请别人。']]]},
@@ -187,7 +187,8 @@
         ['官方规则',['Apple 审核指南：https://developer.apple.com/app-store/review/guidelines/','微信小程序运营规范：https://developers.weixin.qq.com/miniprogram/product/#_5-13-虚拟支付行为','微信虚拟支付接入：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/virtual-payment.html','Google Play 支付政策：https://support.google.com/googleplay/android-developer/answer/9858738?hl=en']]
       ]},
       {id:'r-qual',kind:'leaf',branch:'rules',x:1940,y:2630,w:380,h:180,code:'RULE / 03',title:'资质现状与上线门禁',summary:'公开公司名称已见；商户签约和付费协议尚无后台证明。',status:'需核后台',blocks:[['现有证据与已知问题',['官网协议公开运营者为杭州天才引擎文化传媒有限责任公司，但这不是营业执照或商户审核凭据。','用户此前称 iOS Apple 开发者账号为个人，转企业未成功。个人账号本身不是已查到的 IAP 禁入条件；但与公开公司运营主体的售卖、收款和协议口径需核对。','项目中有小程序 AppID；不能由此推断小程序主体、认证备案、支付商户号和购买权限已开通。']],['逐端核验',['iOS App：App Store Connect 的 Paid Apps Agreement、银行税务资料及四档 IAP 付费项目审核状态。','国内 Android：微信商户 APP 支付权限、AppID 绑定；支付宝移动应用上线及 APP 支付产品已开通。微信官方表中小微商户不支持 APP 支付。','小程序：主体类型、认证备案、服务类目、虚拟支付已签约、iOS Apple 支付及小程序简称；普通商户号不等于虚拟支付权限。','若上架 Google Play：核 Play Console 商家设置、Play Billing 接入与审核。']],['准入边界',['微信企业／事业单位／个体工商户虚拟支付要求小程序已认证、主体信息完备；个人通道要求工具类目、认证备案，并有限额。','自动续费才另申请会员订阅：安卓／鸿蒙近 30 天日均 DAU ≥ 1000；iOS ≥ 1 万，均另有首发满 90 天等条件。当前单次购买不以此为门槛。','缺少后台截图或审核记录的项目标记“未核实／上线阻塞”，不写成“已有资格”或“肯定无资格”。']],['官方准入来源',['Apple 付费协议：https://developer.apple.com/help/app-store-connect/manage-agreements/sign-and-update-agreements/','微信主体权限：https://pay.weixin.qq.com/doc/v3/merchant/4015616699','支付宝 APP 支付准备：https://opendocs.alipay.com/open/00dn74','微信虚拟支付个人通道：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/virtual-payment/person.html','微信订阅安卓：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/vips.html','微信订阅 iOS：https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/vip.html']]]},
-      {id:'r-decisions',kind:'leaf',branch:'rules',x:2420,y:2630,w:380,h:180,code:'RULE / 04',title:'产品待拍板清单',summary:'最终金额、期限算法和售后细则仍需定案。',status:'待拍板',blocks:[['价格与支付',['四档最终售价、是否允许续购叠加及累计上限；Android 是否有 Google Play 分发包。四端同档位同价已定稿。','支付渠道按规则节点的合规矩阵实施，开通状态须以各平台后台核验。']],['凭证与体验券',['付费 VIP 每会员月主动领取 1 次、体验券期不产生资格已定；会员月边界和续购周期算法待确认。','额度扣减顺序、未使用额度到期处理、退款和凭证作废是否返还待确认。']],['邀请、客服与老用户',['注册后 1 个月内首次绑定计成功邀请并自动发券已定；月末截止算法、细化反作弊、前两位被邀请人奖励待确认。','券叠加与撤销、每日穿搭上线过渡、专属客服时段和服务目标、账号合并/注销与老用户补偿待确认。']]]}
+      {id:'r-decisions',kind:'leaf',branch:'rules',x:2420,y:2630,w:380,h:180,code:'RULE / 04',title:'产品待拍板清单',summary:'最终金额、期限算法和售后细则仍需定案。',status:'待拍板',blocks:[['价格与支付',['四档最终售价、是否允许续购叠加及累计上限；Android 是否有 Google Play 分发包。四端同档位同价已定稿。','支付渠道按规则节点的合规矩阵实施，开通状态须以各平台后台核验。']],['凭证与体验券',['付费 VIP 每会员月主动领取 1 次、体验券期不产生资格已定；会员月边界和续购周期算法待确认。','额度扣减顺序、未使用额度到期处理、退款和凭证作废是否返还待确认。']],['邀请、客服与老用户',['注册后 1 个月内首次绑定计成功邀请并自动发券已定；月末截止算法、细化反作弊、前两位被邀请人奖励待确认。','券叠加与撤销、每日穿搭上线过渡、专属客服时段和服务目标、账号合并/注销与老用户补偿待确认。']]]},
+      {id:'r-ads',kind:'leaf',branch:'rules',x:2900,y:2630,w:380,h:180,code:'RULE / 05',title:'App 免广告规则',summary:'有效 VIP 屏蔽 App 全部广告；免费用户正常展示。',status:'权益已明确',blocks:[['适用与生效',['iOS、Android App 接入穿山甲或其他商业广告后，有效 VIP 不展示或请求任何广告；已核销体验券形成的 VIP 期同享，未核销券不生效。','普通用户按广告位规则展示；小程序不在本次 App 广告范围内，广告尚未接入时不宣称已上线。']],['状态变化',['主服务统一判定 VIP；开通或核销成功后 App 停止广告请求并移除已加载或正在展示的广告。','会员到期、退款冲正导致失效、切换账号及回前台时重新校验；状态未确认前先不加载广告，避免误展示给 VIP。']],['未来广告位',['开屏、信息流、横幅、插屏等现有与新增 App 广告位一律遵循免广告，不限广告来源；未来如有看广告领奖励，须单独制定 VIP 替代路径。']]]}
     ];
     const byId = new Map(nodes.map(node => [node.id,node]));
     const viewport = document.getElementById('viewport');
@@ -206,7 +207,7 @@
     function path(d,branch,spine=false) { svg('path',{d,class:`wire ${branch}${spine?' spine':''}`},wires); }
     function dot(x,y,branch) { svg('circle',{cx:x,cy:y,r:5,class:`wire-dot ${branch}`},wires); }
     const pageLinks = [
-      ['front','f-benefits','查看四项权益'],['front','f-plans','选择开通档位'],['front','f-orders','查看购买记录'],
+      ['front','f-benefits','查看五项权益'],['front','f-plans','选择开通档位'],['front','f-orders','查看购买记录'],
       ['front','f-ootd-calendar','进入每日穿搭'],['front','f-cert-create','发起交易凭证'],['front','f-cert-claim','领取本月凭证额度'],
       ['front','f-avatar','选择头像挂件'],['front','f-support','联系专属客服'],
       ['front','f-invite','邀请好友'],['front','f-coupons','查看体验券'],
@@ -294,8 +295,8 @@
       pagePath('M 3620 890 L 3620 930 L 2420 930 L 2420 970'); // 订单详情 → 支付异常列表
       pagePath('M 3620 1430 L 3620 1470 L 2420 1470 L 2420 1510'); // 会员详情 → 凭证额度
       pagePath('M 2420 1780 L 2420 1740 L 3620 1740 L 3620 1700'); // 体验券规则 → 体验券列表
-      path('M 1930 2515 L 1930 2584 L 1170 2584 L 2610 2584','rules',true);
-      for (const id of ['r-account','r-platform','r-qual','r-decisions']) {
+      path('M 1930 2515 L 1930 2584 L 1170 2584 L 3090 2584','rules',true);
+      for (const id of ['r-account','r-platform','r-qual','r-decisions','r-ads']) {
         const n=byId.get(id),cx=n.x+n.w/2;
         path(`M ${cx} 2584 L ${cx} 2630`,'rules'); dot(cx,2584,'rules');
       }
